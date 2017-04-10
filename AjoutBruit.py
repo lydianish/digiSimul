@@ -60,26 +60,18 @@ def echantillonageRect2(npimage, longeur, largeur, nbPoint):
     return npimage
 
 
-def AjoutSpeckel( img, borneInf, borneSup, ecartTypeGauss):
+def AjoutSpeckel( img, borneInf, borneSup, ecartTypeGauss, u):
     longeur,largeur = img.shape
-    imgRetour = np.ones((longeur, largeur)) * 255
-    y = -1
-    while y < largeur -1:
-        x = -1
-        y += 1
-        while x < longeur-1 :
-            x += 1
-            if img[x,y] != -1:
-                px = np.sqrt(img[x,y]) + 0j
-                u = uniform(borneInf,borneSup)
-                i = 0
-                while i < u:
-                    g = np.random.multivariate_normal((0,0),[[ecartTypeGauss, 0], [0, ecartTypeGauss]],1)
-                    px += g[0,0]
-                    px += np.complex(0,g[0,1])
-                    i += 1
-                imgRetour[x,y] = (np.square(px.real) + np.square(px.imag))
-    return imgRetour
+    #matrices de vecteurs gaussiens
+    matrixGauss = np.random.randn(longeur * largeur,u).reshape(longeur,largeur,u)
+    matrixGauss2 = np.random.randn(longeur * largeur, u).reshape(longeur, largeur, u)
+    imgRetour = np.sqrt(img + 0j)
+    i = 0
+    while i < u-1:
+        imgRetour += (matrixGauss[:,:,i]) + (matrixGauss2[:,:,i]*1j)
+        i += 1
+    img = np.square(imgRetour.real) + np.square(imgRetour.imag)
+    return img
 
 
 def interpolation(img):
@@ -87,21 +79,18 @@ def interpolation(img):
     l,L = img.shape
     x = np.arange(0,l,1)
     y = np.arange(0, L, 1)
-    img = interpolate.interp2d(x,y,img, kind='cubic')
-    return img
+    fonctionInter = interpolate.interp2d(x,y,img, kind='cubic')
+    return fonctionInter
 
 def construireImageInterpelee(function,l,L,nbPoint):
-
-    x = np.arange(0,l,1);
-    y = np.arange(0,L,1)
-    arr = np.zeros((l,L))
-    for yi in y:
-        for xi in x:
-         arr[xi][yi] = function(xi/nbPoint,yi/nbPoint)
+    x = np.arange(0,l+0.5,0.5)
+    y = np.arange(0,L+0.5,0.5)
+    print(x)
+    X,Y = np.meshgrid(x,y)
+    arr = function(x,y)
     print(arr)
     img = Image.fromarray(arr)
-    img = ImageOps.mirror(img)
-    img.rotate(90).show()
+    img.show()
     return img
 
 
@@ -110,9 +99,9 @@ def AjoutBruit(image):
     nbPoint = 2
     l,L = image.shape
     img = echantillonageRect2(image, l ,L ,nbPoint)
+    print(np.random.randn(190*190))
     print(img.shape)
-    img4 = AjoutSpeckel(img, 1,1 , 0.2)
-    # Image.fromarray(img4).show()
+    img4 = AjoutSpeckel(img, 1,1 , 0.2,2)
     img5 = interpolation(img4)
     img5 = construireImageInterpelee(img5,l,L,nbPoint)
 
@@ -128,5 +117,7 @@ def AjoutBruitMultiThreah():
 
 
 # MAIN
-AjoutBruitMultiThreah()
+img = cv2.imread("images/vador.bmp")
+img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+AjoutBruit(img)
 
