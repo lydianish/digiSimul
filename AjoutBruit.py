@@ -79,18 +79,22 @@ def interpolation(img):
     l,L = img.shape
     x = np.arange(0,l,1)
     y = np.arange(0, L, 1)
+    X,Y = np.meshgrid(x,y)
     fonctionInter = interpolate.interp2d(x,y,img, kind='cubic')
+    print(fonctionInter(1,1))
     return fonctionInter
 
 def construireImageInterpelee(function,l,L,nbPoint):
-    x = np.arange(0,l+0.5,0.5)
-    y = np.arange(0,L+0.5,0.5)
-    print(x)
-    X,Y = np.meshgrid(x,y)
-    arr = function(x,y)
+    x = np.arange(0, l, 1);
+    y = np.arange(0, L, 1)
+    arr = np.zeros((l, L))
+    for yi in y:
+        for xi in x:
+            arr[xi][yi] = function(xi / nbPoint, yi / nbPoint)
     print(arr)
     img = Image.fromarray(arr)
-    img.show()
+    img = ImageOps.mirror(img)
+    img.rotate(90).show()
     return img
 
 
