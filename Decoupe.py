@@ -3,17 +3,11 @@ import cv2
 from PIL.Image import *
 import re
 
-from MyException import MyException, test,testhautg,testbasg,testbasd,testhautd               #on importe test from MyException
-
-
-def equation_droite(x1,y1,x2,y2):
-    #retourne alpha et betha de l'équation de la droite y=alpha*x + betha
-    alpha=(y2-y1)/(x2-x1)
-    betha= y1-alpha*x1
-    return(alpha,betha)
+from MyException import MyException, test,test007               
 
 
 def rotate_boundredef(image, angle):
+    #Cette méthode renvoie une image qui a subi une rotation de angle degre ainsi que les positions des coin de la nouvelle image
     (h, w) = image.shape[:2]
     (cX, cY) = (w // 2, h // 2)
 
@@ -35,47 +29,40 @@ def rotate_boundredef(image, angle):
     ygauche = h1-ydroite
     return (imagefinale,round(xhaut,0),round(xbas,0),round(ydroite,0),round(ygauche,0))
 
-def decoupe(image,x,y,taille_capteur_long,taille_capteur_hauteur):
+def decoupe(image,x,y,taille_capteur_long,taille_capteur_hauteur,xh,xb,yd,yg):
+    #Cette méthode renvoie une image découpée à partir des coordonnées (x,y) ainsi que la taille du capteur
     try :
         test(image,x,y,taille_capteur_long,taille_capteur_hauteur)
-        # testhautg(x, y, taille_capteur_long, taille_capteur_hauteur, a1, b1, xh, yg)
-        # testhautd(x, y, taille_capteur_long, taille_capteur_hauteur, a2, b2, xh, yd)
-        # testbasd(x, y, taille_capteur_long, taille_capteur_hauteur, a3, b3, xb, yd)
-        # testbasg(x, y, taille_capteur_long, taille_capteur_hauteur, a4, b4, xb, yg)
+        test007(image, x, y, taille_capteur_long, taille_capteur_hauteur)
         box = (x, y, x+taille_capteur_long, y+taille_capteur_hauteur)
         coupe = image.crop(box)
         Image.show(coupe)
         return (coupe)
     except MyException as e:
         print(e)
+        exit()
 
 
 
 def rotdec (nom_image,angle,x,y,taille_capteur_long,taille_capteur_hauteur):
+    #Cette méthode effectue à la fois la rotation et le découpage
     m = re.search('[^.]*', nom_image)
     prefixe=m.group(0)
 
     im2 = cv2.imread(nom_image, -2)
 
     rot, xh, xb, yd, yg = rotate_boundredef(im2, angle)  # ou rotated = rotate_b(im, angle)
-    (hn, wn) = im2.shape[:2]
-    a1, b1 = equation_droite(0, yg, xh, 0)
-    a2, b2 = equation_droite(xh, 0, wn, yd)
-    a3, b3 = equation_droite(xb, hn, wn, yd)
-    a4, b4 = equation_droite(0, yg, xb, hn)
-
-    nouvel = cv2.imwrite('rotok.jpg', rot)
     ima = open('rotok.jpg')
 
-    n = decoupe(ima, x, y, taille_capteur_long, taille_capteur_hauteur)
+    n = decoupe(ima, x, y, taille_capteur_long, taille_capteur_hauteur,xh,xb,yd,yg)
     #format d'enregistrement: nom_angle_x_y
     a = "%s _angle%s" % (prefixe,angle)
     b= "%s _x%s" % (a,x)
     nom="%s _y%s" % (b,y)
-    ext = ".jpg"
+    ext = ".png"
     nom_complet = "%s%s" % (nom, ext)
     n.save(nom_complet, "PNG")
 
-rotdec('101_1.tif',30,300,100,100,100)
+rotdec('03_d_4.bmp',30,200,250,100,100)
 
 
