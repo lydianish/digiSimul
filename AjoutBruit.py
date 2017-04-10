@@ -85,29 +85,21 @@ def interpolation(img):
     return fonctionInter
 
 def construireImageInterpelee(function,l,L,nbPoint):
-    x = np.arange(0, l, 1);
-    y = np.arange(0, L, 1)
-    arr = np.zeros((l, L))
-    for yi in y:
-        for xi in x:
-            arr[xi][yi] = function(xi / nbPoint, yi / nbPoint)
-    print(arr)
-    img = Image.fromarray(arr)
-    img = ImageOps.mirror(img)
-    img.rotate(90).show()
+    x = np.arange(0, l/nbPoint,1/nbPoint)
+    y = np.arange(0, L/nbPoint,1/nbPoint)
+    img = function(x,y)
     return img
 
 
 def AjoutBruit(image):
     # conversion de l'image en array numpy
-    nbPoint = 2
+    nbPoint = 3
     l,L = image.shape
     img = echantillonageRect2(image, l ,L ,nbPoint)
-    print(np.random.randn(190*190))
-    print(img.shape)
-    img4 = AjoutSpeckel(img, 1,1 , 0.2,2)
+    img4 = AjoutSpeckel(img, 1,1 , 0.2,5)
     img5 = interpolation(img4)
     img5 = construireImageInterpelee(img5,l,L,nbPoint)
+    Image.fromarray(img5)
 
 
 def AjoutBruitMultiThreah():
@@ -123,5 +115,8 @@ def AjoutBruitMultiThreah():
 # MAIN
 img = cv2.imread("images/vador.bmp")
 img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-AjoutBruit(img)
+i = 0
+while i < 1000:
+    AjoutBruit(img)
+    i += 1
 
