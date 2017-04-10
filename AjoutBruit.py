@@ -5,6 +5,7 @@ from scipy import interpolate
 from random import uniform
 from PIL import ImageOps
 import cv2
+import _thread
 from multiprocessing import Pool
 
 def echantillonageRadial(image, beamNumber, pxPerBeam, angle, height, dmin, dmax):
@@ -36,21 +37,25 @@ def echantillonageRect(npimage, longeur, largeur, nbPointAbscisse, nbpointOrdonn
         x=0
         while x < longeur:
             imageSortie[int(x)][int(y)] = npimage[int(x)][int(y)]
-            x += largeur / nbPointAbscisse
+            x += largeur
         y += longeur/ nbpointOrdonnee
     return imageSortie
 
 
-def echantillonageRect2(npimage, longeur, largeur, nbPointAbscisse, nbpointOrdonnee):
+def echantillonageRect2(npimage, longeur, largeur, nbPoint):
     y = 0
-    while y < largeur/2:
-        print(y)
-        npimage = np.delete(npimage,(y),axis=1)
+    while y < int(largeur/nbPoint):
+        again = 1
+        while again < nbPoint:
+            npimage = np.delete(npimage,(y),axis=1)
+            again += 1
         y += 1
     x = 0
-    while x < longeur/2:
-        print(x)
-        npimage = np.delete(npimage,(x),axis=0)
+    while x < int(longeur/nbPoint):
+        again = 1
+        while again < nbPoint:
+            npimage = np.delete(npimage,(x),axis=0)
+            again += 1
         x += 1
     return npimage
 
@@ -67,7 +72,7 @@ def AjoutSpeckel( img, borneInf, borneSup, ecartTypeGauss):
             if img[x,y] != -1:
                 px = np.sqrt(img[x,y]) + 0j
                 u = uniform(borneInf,borneSup)
-                i = 1
+                i = 0
                 while i < u:
                     g = np.random.multivariate_normal((0,0),[[ecartTypeGauss, 0], [0, ecartTypeGauss]],1)
                     px += g[0,0]
@@ -85,14 +90,14 @@ def interpolation(img):
     img = interpolate.interp2d(x,y,img, kind='cubic')
     return img
 
-def construireImageInterpelee(function,l,L):
+def construireImageInterpelee(function,l,L,nbPoint):
 
     x = np.arange(0,l,1);
     y = np.arange(0,L,1)
     arr = np.zeros((l,L))
     for yi in y:
         for xi in x:
-         arr[xi][yi] = function(xi/2,yi/2)
+         arr[xi][yi] = function(xi/nbPoint,yi/nbPoint)
     print(arr)
     img = Image.fromarray(arr)
     img = ImageOps.mirror(img)
@@ -102,34 +107,26 @@ def construireImageInterpelee(function,l,L):
 
 def AjoutBruit(image):
     # conversion de l'image en array numpy
+    nbPoint = 2
     l,L = image.shape
-    img = echantillonageRect2(image, l ,L ,l/2,L/2)
+    img = echantillonageRect2(image, l ,L ,nbPoint)
     print(img.shape)
-    img4 = AjoutSpeckel(img, 2, 10, 2)
+    img4 = AjoutSpeckel(img, 1,1 , 0.2)
     # Image.fromarray(img4).show()
     img5 = interpolation(img4)
-    img5 = construireImageInterpelee(img5,l,L)
+    img5 = construireImageInterpelee(img5,l,L,nbPoint)
+
+
+def AjoutBruitMultiThreah():
+    img = cv2.imread("images/vador.bmp")
+    img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+    t1 = _thread.start_new_thread(AjoutBruit,(img,))
+    t2 = _thread.start_new_thread(AjoutBruit,(img,))
+    t3 = _thread.start_new_thread(AjoutBruit,(img,))
+    t4 = _thread.start_new_thread(AjoutBruit,(img,))
+    return 0;
+
 
 # MAIN
-img = cv2.imread("images/leia.jpg")
-img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-AjoutBruit(img)
-
-#
-# if __name__ == '__main__':
-#     pool = Pool(processes=4)
-#     possibleFactors = range(1,int(np.floor(np.sqrt(numToFactor)))+1)
-#     print 'Checking ', possibleFactors
-#     result = pool.map(isFactor, possibleFactors)
-#     cleaned = [x for x in result if not x is None]
-#     print 'Factors are', cleaned
-# img = Image.open("images/fg1.bmp").convert("L")
-# l, L = img.size
-# print(l, L)
-# img2 = echantillonageRadial(img, 20, 20, math.pi +0.1, 10, 15, 350)
-# img3 = Image.fromarray(img2)
-
-# img3.show()
-#
-
+AjoutBruitMultiThreah()
 
