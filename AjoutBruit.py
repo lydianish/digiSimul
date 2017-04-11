@@ -2,11 +2,14 @@ import numpy as np
 import math
 from PIL import Image
 from scipy import interpolate
+from scipy import stats
 from random import uniform
 from PIL import ImageOps
 import cv2
 import _thread
 from multiprocessing import Pool
+import list
+import threading
 
 def echantillonageRadial(image, beamNumber, pxPerBeam, angle, height, dmin, dmax):
     longeur, largeur = image.size
@@ -63,8 +66,10 @@ def echantillonageRect2(npimage, longeur, largeur, nbPoint):
 def AjoutSpeckel( img, borneInf, borneSup, ecartTypeGauss, u):
     longeur,largeur = img.shape
     #matrices de vecteurs gaussiens
-    matrixGauss = np.random.randn(longeur * largeur,u).reshape(longeur,largeur,u)
-    matrixGauss2 = np.random.randn(longeur * largeur, u).reshape(longeur, largeur, u)
+    alpha = 1.9
+    gama =  0.4
+    matrixGauss = (stats.levy_stable.rvs(alpha, 0,size = longeur*largeur*u,scale=gama).reshape(longeur, largeur, u))
+    matrixGauss2 = (stats.levy_stable.rvs(alpha,0,size = longeur*largeur*u,scale=gama).reshape(longeur, largeur, u))
     imgRetour = np.sqrt(img + 0j)
     i = 0
     while i < u-1:
@@ -81,7 +86,6 @@ def interpolation(img):
     y = np.arange(0, L, 1)
     X,Y = np.meshgrid(x,y)
     fonctionInter = interpolate.interp2d(x,y,img, kind='cubic')
-    print(fonctionInter(1,1))
     return fonctionInter
 
 def construireImageInterpelee(function,l,L,nbPoint):
@@ -93,30 +97,63 @@ def construireImageInterpelee(function,l,L,nbPoint):
 
 def AjoutBruit(image):
     # conversion de l'image en array numpy
-    nbPoint = 3
+    nbPoint = 2
     l,L = image.shape
     img = echantillonageRect2(image, l ,L ,nbPoint)
-    img4 = AjoutSpeckel(img, 1,1 , 0.2,5)
+    img4 = AjoutSpeckel(img, 1,1 , 0.2,50)
     img5 = interpolation(img4)
     img5 = construireImageInterpelee(img5,l,L,nbPoint)
     Image.fromarray(img5)
 
 
+
 def AjoutBruitMultiThreah():
     img = cv2.imread("images/vador.bmp")
     img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-    t1 = _thread.start_new_thread(AjoutBruit,(img,))
-    t2 = _thread.start_new_thread(AjoutBruit,(img,))
-    t3 = _thread.start_new_thread(AjoutBruit,(img,))
-    t4 = _thread.start_new_thread(AjoutBruit,(img,))
+    t1 = threading.Thread(target=multipleImage,args=(img,))
+    t2 = threading.Thread(target=multipleImage,args=(img,))
+    t3 = threading.Thread(target=multipleImage,args=(img,))
+    t4 = threading.Thread(target=multipleImage,args=(img,))
+    t1.start()
+    t2.start()
+    t3.start()
+    t4.start()
     return 0;
 
+def multipleImage(img):
+    it = 0
+    while it < 40:
+        print(it)
+        AjoutBruit(img)
+        it += 1
+
+def trouveAlphaGama():
+    img = cv2.imread("images/01_d_3.bmp")
+    img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+    l,L = img.shape
+    y = -1
+    somme = 0
+    sommeC = 0
+    cpt = 0
+    a = [0]
+    while y < L-1:
+        y +=1
+        x = -1
+        while x < l-1:
+            print(x,y)
+            x += 1
+            if ( img[x][y] != 0):
+                a.append(img[x][y])
+
+    print(a)
+    esp = np.mean(a,dtype=np.float64)
+    var = np.var(a,dtype=np.float64)
+    alpha = np.sqrt(np.square(math.pi)/(6*var))
+    gama = math.exp( alpha * (esp - math.log(2,10) - 0.577215664901532860606512090082402431042159335939923598805*((1/alpha)-1) ))
+    print(esp,var,alpha,gama)
 
 # MAIN
-img = cv2.imread("images/vador.bmp")
+img = cv2.imread("images/fg1.bmp")
 img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-i = 0
-while i < 1000:
-    AjoutBruit(img)
-    i += 1
+AjoutBruitMultiThreah()
 
