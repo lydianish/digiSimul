@@ -194,30 +194,33 @@ def trouveAlphaGama():
     print(esp,var,alpha,gama)
 
 
+
 def anayseImageCapteur(path):
     listPx = [0]
     listeImage = os.listdir(path)
     for image in listeImage:
-       p= "%s\%s"%(path,image)
-       imgTmp = cv2.imread(p)
-       imgTmp = cv2.cvtColor(imgTmp, cv2.COLOR_RGB2GRAY)
-       l,L = imgTmp.shape
-       y = -1
-       while y < L-1:
-            y +=1
-            x = -1
-            while x < l-1:
-                print(x,y)
-                x += 1
-                if ( imgTmp[x][y] != 0):
-                    listPx.append(imgTmp[x][y])
+        p= "%s\%s"%(path,image)
+        y = -1
+        try :
+            imgTmp = cv2.imread(imgTmp)
+            l,L = imgTmp.shape
+            while y < L-1:
+                y +=1
+                x = -1
+                while x < l-1:
+                    print(x,y)
+                    x += 1
+                    if ( imgTmp[x][y] != 0):
+                        listPx.append(imgTmp[x][y])
+        except: print("Impossible d'analyser l'image %s"%(p))
 
-       esp = np.mean(listPx, dtype=np.float64)
-       var = np.var(listPx, dtype=np.float64)
-       alpha = np.sqrt(np.square(math.pi) / (6 * var))
-       gama = math.exp(alpha * (
-       esp - math.log(2, 10) - 0.5772156 * ((1 / alpha) - 1)))
-       print (esp,var,alpha,gama)
+
+        esp = np.mean(listPx, dtype=np.float64)
+        var = np.var(listPx, dtype=np.float64)
+        alpha = np.sqrt(np.square(math.pi) / (6 * var))
+        gama = math.exp(alpha * (
+            esp - math.log(2, 10) - 0.5772156 * ((1 / alpha) - 1)))
+        print (esp,var,alpha,gama)
 
 # MAIN
 anayseImageCapteur("C:/Users\polch_000\Desktop\ImagesEchographiques")
