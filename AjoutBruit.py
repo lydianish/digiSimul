@@ -3,13 +3,12 @@ import math
 from PIL import Image
 from scipy import interpolate
 from scipy import stats
-from random import uniform
 from PIL import ImageOps
 import cv2
-import _thread
-from multiprocessing import Pool
 import list
 import threading
+import os
+# import pyopencl as cl
 
 def echantillonageRadial(image, beamNumber, pxPerBeam, angle, height, dmin, dmax):
     longeur, largeur = image.size
@@ -45,7 +44,14 @@ def echantillonageRect(npimage, longeur, largeur, nbPointAbscisse, nbpointOrdonn
     return imageSortie
 
 
-def echantillonageRect2(npimage, longeur, largeur, nbPoint):
+def echantillonageRect2(npimage,nbPoint):
+    """
+    
+    :param npimage: Image à echantilloner en format numpy 
+    :param nbPoint: Ratio des points que l'on veut garder : 1 sur nbpoint
+    :return: Image echantillonée sous forme de tableau numpy 
+    """
+    longeur,largeur = npimage.shape
     y = 0
     while y < int(largeur/nbPoint):
         again = 1
@@ -66,10 +72,14 @@ def echantillonageRect2(npimage, longeur, largeur, nbPoint):
 def AjoutSpeckel( img, borneInf, borneSup, ecartTypeGauss, u):
     longeur,largeur = img.shape
     #matrices de vecteurs gaussiens
-    alpha = 1.9
-    gama =  0.4
-    matrixGauss = (stats.levy_stable.rvs(alpha, 0,size = longeur*largeur*u,scale=gama).reshape(longeur, largeur, u))
-    matrixGauss2 = (stats.levy_stable.rvs(alpha,0,size = longeur*largeur*u,scale=gama).reshape(longeur, largeur, u))
+    beta = 8
+    alpha = 1.98
+    # matrixGauss = stats.gennorm.rvs(beta,scale=alpha,loc=0,size=longeur*longeur*u).reshape(longeur, largeur, u)
+    # matrixGauss2 =  stats.gennorm.rvs(beta,scale=alpha,loc=0,size=longeur*longeur*u).reshape(longeur, largeur, u)
+    # matrixGauss = (stats.levy_stable_gen.rvs(alpha, 0,size = longeur*largeur*u,scale=gama).reshape(longeur, largeur, u))
+    # matrixGauss2 = (stats.levy_stable_gen.rvs(alpha,0,size = longeur*largeur*u,scale=gama).reshape(longeur, largeur, u))
+    matrixGauss = np.random.randn(longeur * largeur, u).reshape(longeur, largeur, u)
+    matrixGauss2 = np.random.randn(longeur * largeur, u).reshape(longeur, largeur, u)
     imgRetour = np.sqrt(img + 0j)
     i = 0
     while i < u-1:
@@ -80,6 +90,11 @@ def AjoutSpeckel( img, borneInf, borneSup, ecartTypeGauss, u):
 
 
 def interpolation(img):
+    """
+    Interpolation bicubique
+    :param img: Image à interpoler sous forme de tableau numpy
+    :return: Fonction d'interpoaltion de l'image 
+    """
     img = np.zeros(img.shape) + img
     l,L = img.shape
     x = np.arange(0,l,1)
@@ -89,6 +104,14 @@ def interpolation(img):
     return fonctionInter
 
 def construireImageInterpelee(function,l,L,nbPoint):
+    """
+    Reconstruit une image grâce à une fonction d'interpolation de R² dans R 
+    :param function: Une fonction de R² dans R 
+    :param l: Longeur de l'image voulu 
+    :param L: Largeur de l'image voulu 
+    :param nbPoint: Nombre de point à interpoler 
+    :return: Un tableau numpy bidimentionnel représentant une image 
+    """
     x = np.arange(0, l/nbPoint,1/nbPoint)
     y = np.arange(0, L/nbPoint,1/nbPoint)
     img = function(x,y)
@@ -96,35 +119,53 @@ def construireImageInterpelee(function,l,L,nbPoint):
 
 
 def AjoutBruit(image):
+    """
+    Fonction principale appelant les méthodes permettant d'ajouter un bruit de peckel à image de type optique
+    
+    :param image: Une image provenant de la bibliothèque "PIL Image" 
+    :return: Un tableau bidimentionel numpy représentant une image 
+    """
     # conversion de l'image en array numpy
     nbPoint = 2
     l,L = image.shape
-    img = echantillonageRect2(image, l ,L ,nbPoint)
-    img4 = AjoutSpeckel(img, 1,1 , 0.2,50)
+    img = echantillonageRect2(image,nbPoint)
+    img4 = AjoutSpeckel(img, 1,1 , 0.2,3)
     img5 = interpolation(img4)
     img5 = construireImageInterpelee(img5,l,L,nbPoint)
-    Image.fromarray(img5)
+    return img5
 
 
 
 def AjoutBruitMultiThreah():
+    """
+    Produit plusieurs threads permettant d'utiliser tous les coeurs pour l'ajout du bruit de speckel 
+    :return: Void
+    """
     img = cv2.imread("images/vador.bmp")
     img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-    t1 = threading.Thread(target=multipleImage,args=(img,))
-    t2 = threading.Thread(target=multipleImage,args=(img,))
-    t3 = threading.Thread(target=multipleImage,args=(img,))
-    t4 = threading.Thread(target=multipleImage,args=(img,))
+    t1 = threading.Thread(target=multipleImage,args=(img,1))
+    t2 = threading.Thread(target=multipleImage,args=(img,2))
+    t3 = threading.Thread(target=multipleImage,args=(img,3))
+    t4 = threading.Thread(target=multipleImage,args=(img,4))
+    t5 = threading.Thread(target=multipleImage,args=(img,5))
+    t6 = threading.Thread(target=multipleImage,args=(img,6))
+    t7 = threading.Thread(target=multipleImage,args=(img,7))
     t1.start()
     t2.start()
     t3.start()
     t4.start()
+    t5.start()
+    t6.start()
+    t7.start()
     return 0;
 
-def multipleImage(img):
+def multipleImage(img,p):
     it = 0
-    while it < 40:
+    while it < 10:
         print(it)
-        AjoutBruit(img)
+        img2 = AjoutBruit(img)
+        img3 = Image.fromarray(img2).\
+         save("imgT1It%sP%s"%(it,p),"gif")
         it += 1
 
 def trouveAlphaGama():
@@ -149,11 +190,67 @@ def trouveAlphaGama():
     esp = np.mean(a,dtype=np.float64)
     var = np.var(a,dtype=np.float64)
     alpha = np.sqrt(np.square(math.pi)/(6*var))
-    gama = math.exp( alpha * (esp - math.log(2,10) - 0.577215664901532860606512090082402431042159335939923598805*((1/alpha)-1) ))
+    gama = math.exp( alpha * (esp - math.log(2,10) - 0.57721566490153286*((1/alpha)-1) ))
     print(esp,var,alpha,gama)
 
-# MAIN
-img = cv2.imread("images/fg1.bmp")
-img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-AjoutBruitMultiThreah()
 
+def anayseImageCapteur(path):
+    listPx = [0]
+    listeImage = os.listdir(path)
+    for image in listeImage:
+       p= "%s\%s"%(path,image)
+       imgTmp = cv2.imread(p)
+       imgTmp = cv2.cvtColor(imgTmp, cv2.COLOR_RGB2GRAY)
+       l,L = imgTmp.shape
+       y = -1
+       while y < L-1:
+            y +=1
+            x = -1
+            while x < l-1:
+                print(x,y)
+                x += 1
+                if ( imgTmp[x][y] != 0):
+                    listPx.append(imgTmp[x][y])
+
+       esp = np.mean(listPx, dtype=np.float64)
+       var = np.var(listPx, dtype=np.float64)
+       alpha = np.sqrt(np.square(math.pi) / (6 * var))
+       gama = math.exp(alpha * (
+       esp - math.log(2, 10) - 0.5772156 * ((1 / alpha) - 1)))
+       print (esp,var,alpha,gama)
+
+# MAIN
+anayseImageCapteur("C:/Users\polch_000\Desktop\ImagesEchographiques")
+
+
+# img = cv2.imread("images/fg1.bmp")
+# img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+# AjoutBruit(img)
+# Image.fromarray(img).show()
+
+
+# # GPU
+# # creer un contexte
+# myContext = cl.create_some_context()
+# # creer une file de commandes
+# myQueue = cl.CommandQueue(myContext)
+# # allouer et initialiser la memoire du device
+# inputData = np.random.rand(50000).astype(np.float32)
+# outputData = np.empty_like(inputData)
+# myFlags = cl.mem_flags
+# inputBuffer = cl.Buffer(myContext,
+# myFlags.READ_ONLY | myFlags.COPY_HOST_PTR, hostbuf=inputData)
+# outputBuffer = cl.Buffer(myContext, myFlags.WRITE_ONLY, inputData.nbytes)
+# # charger et compiler le kernel
+# myProgram = cl.Program(myContext,
+# """__kernel void add42(__global const float *data, __global float *result){int gid = get_global_id(0);result[gid] = data[gid] + 42.f;}""").build()
+# # ajouter le kernel dans la file de commandes
+# # recuperer les donnees dans la memoire du device
+# myProgram.add42(myQueue, inputData.shape,None, inputBuffer, outputBuffer)
+# cl.enqueue_copy(myQueue, outputData, outputBuffer)
+# # verifier le resultat du calcul
+# if abs(np.linalg.norm(outputData - (inputData + 42))) < 1e-6 :
+#     print("passed")
+# else:
+#     print("failed")
+#
