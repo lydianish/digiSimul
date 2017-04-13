@@ -50,8 +50,8 @@ def ajoutSpeckelGenNorm(img, alpha, gamma):
 def ajoutSpeckelGauss(img, ecartType):
     longeur,largeur = img.shape
     #matrices de vecteurs loi normal :
-    matrixGauss =  ecartType + np.random.randn(longeur * largeur).reshape(longeur, largeur)
-    matrixGauss2 = ecartType + np.random.randn(longeur * largeur).reshape(longeur, largeur)
+    matrixGauss =  ecartType * np.random.randn(longeur * largeur).reshape(longeur, largeur)
+    matrixGauss2 = ecartType * np.random.randn(longeur * largeur).reshape(longeur, largeur)
     imgRetour = np.sqrt(img + 0j)
     imgRetour += (matrixGauss[:,:]) + (matrixGauss2[:,:]*1j)
     img = np.square(imgRetour.real) + np.square(imgRetour.imag)
@@ -92,43 +92,69 @@ def anayseImageCapteur(path):
     :param path: 
     :return: Une liste de la variation des intensités des images, de Alpha, et de Gamma
     """
-    listPx = [0]
     listeImage = os.listdir(path)
+    print(listeImage)
     listVar = []
     listGama = []
     listAlpha = []
     for image in listeImage:
+        #Lecture des images
         pathIm= "%s\%s"%(path,image)
         print(pathIm)
-        img = cv2.imread(pathIm,1)
+        img = cv2.imread(pathIm,0)
         #Supprime les valeurs 0 et 255
         mask = np.logical_and(img != 0,img != 255)
         img = img[mask]
+        #Calcul de  la variance, esperance, alpha et gama
         var = np.var(img)
         esp = np.mean(img)
         alpha = np.sqrt(np.square(math.pi) / (6 * var))
         gama = math.exp(alpha * (esp - math.log(2, 10) - 0.5772156 * ((1 / alpha) - 1)))
+       #Ajout dans des valeurs dans une liste
         listVar.append(esp)
         listAlpha.append(alpha)
         listGama.append(gama)
-    print(listVar,listAlpha,listGama)
+    return listVar,listAlpha,listGama
 
-
-def AjoutBruit(image):
+def AjoutBruit(image,nbPoint, method):
     """
     Fonction principale appelant les méthodes permettant d'ajouter un bruit de peckel à image de type optique
     
     :param image: Une image provenant de la bibliothèque "PIL Image" 
     :return: Un tableau bidimentionel numpy représentant une image 
     """
-    # conversion de l'image en array numpy
-    nbPoint = 2
-    l,L = image.shape
-    img = echantillonageRect(image,nbPoint)
-    img4 = ajoutSpeckelGenNorm(img,1.8,8)
-    img5 = interpolation(img4)
-    img5 = construireImageInterpelee(img5,l,L,nbPoint)
-    return img5
+    if method == "gen":
+        l,L = image.shape
+        img = echantillonageRect(image,nbPoint)
+        #Analyse l'image
+        var,alpha,gama = anayseImageCapteur("C:/Users\polch_000\Desktop\ImagesEchographiques")
+        #Determination des fonctions de probabilité type kernel :
+        fctVar = stats.gaussian_kde(var)
+        fctAlpha = stats.gaussian_kde(alpha)
+        fctGama = stats.gaussian_kde(gama)
+        #Selection d'une valeur
+        alpha = fctAlpha.resample(1)
+        gama = fctGama.resample(1)
+        #Ajout du bruit :
+        img4 = ajoutSpeckelGenNorm(img,alpha,gama)
+        img5 = interpolation(img4)
+        img5 = construireImageInterpelee(img5,l,L,nbPoint)
+        return img5
+    if method == "norm":
+        l,L = image.shape
+        img = echantillonageRect(image,nbPoint)
+        #Analyse l'image
+        var,alpha,gama = anayseImageCapteur("C:/Users\polch_000\Desktop\ImagesEchographiques")
+        #Determination des fonctions de probabilité type kernel :
+        fctVar = stats.gaussian_kde(var)
+        #Selection d'une valeur
+        var = fctVar.resample(1)
+        var = 10
+        #Ajout du bruit
+        img4 = ajoutSpeckelGauss(img,np.sqrt(var))
+        img5 = interpolation(img4)
+        img5 = construireImageInterpelee(img5,l,L,nbPoint)
+        return img5
 
 
 
@@ -166,14 +192,12 @@ def multipleImage(img,p):
 
 
 
-# MAIN
-anayseImageCapteur("C:/Users\polch_000\Desktop\ImagesEchographiques")
 
-
-# img = cv2.imread("images/fg1.bmp")
-# img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-# AjoutBruit(img)
-# Image.fromarray(img).show()
+#main
+img = cv2.imread("images/fg1.bmp")
+img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+img = AjoutBruit(img,2,"norm")
+Image.fromarray(img).show()
 
 
 # # GPU
