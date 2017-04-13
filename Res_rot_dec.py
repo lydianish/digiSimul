@@ -7,6 +7,9 @@ from Resolution import re_echantillonnage
 from Rotation import rotation
 from Decoupage import decoupe
 
+#Methode qui renvoie le nom de l'image quand on lui donne un chemin
+#Données :
+#   - chemin : chemin où se trouve l'image
 
 def DonneNom(chemin):
     l = chemin.split("/")
@@ -16,7 +19,17 @@ def DonneNom(chemin):
 
 class Res_rot_dec :
 
-    def rotdec(angle, x, y, taille_capteur_long, taille_capteur_hauteur,chemin,ro,rc):
+    # Methode qui renvoie l'image ayant subi un re-échantillonage, une rotation et un découpage
+    # Donées :
+    #   - chemin : chemin où se trouve l'image
+    #   - ro: resolutionOriginale (c'est la resolution de l'image originale dont le chemin est donne en parametre)
+    #   - rc: resolutionCapteur (c'est la resolution finale)
+    #   - angle : l'angle de rotation
+    #   - (x,y)  : coordonnées du pixel en haut à gauche où l'on veut découper
+    #   - taille du capteur: -taille_capteur_longueur
+    #                        - taille_capteur_hauteur
+
+    def ech_rot_dec(chemin,ro,rc,angle, x, y, taille_capteur_long, taille_capteur_hauteur):
         #recupere le nom de l'image
         nom_image = DonneNom(chemin)
 
@@ -26,7 +39,7 @@ class Res_rot_dec :
         im2 = cv2.imread('resolution.png', -2)
 
         #rotation et sauvegarde
-        rot = rotation(im2, angle)  # ou rotated = rotate_b(im, angle)
+        rot = rotation(im2, angle)
         cv2.imwrite('rotation.jpg', rot)
         ima = open('rotation.jpg')
 
@@ -54,4 +67,5 @@ class Res_rot_dec :
         os.remove('resolution.png')
         os.remove('rotation.jpg')
 
-    rotdec(0, 100, 200, 100, 100,"/Users/Noemie/PycharmProjects/Projet/101_1.tif",500,200)
+#test de la méthode
+    # ech_rot_dec("/Users/Noemie/PycharmProjects/Projet/101_1.tif",500,200,0, 100, 200, 100, 100)
