@@ -1,14 +1,16 @@
 import numpy as np
 import cv2
 
-#Methode qui renvoie une image ayant subi une rotation
-#Données :
-#   - image : l'image de depart
-#   - angle : angle de rotation
-#Containtes : - Utiliser la fonction cv2.imread() pour l'image
-#             - l'angle doit etre exprimé en degres
+
 
 def rotation(image, angle):
+    """
+    Containtes : - Utiliser la fonction cv2.imread() pour l'image
+                 - l'angle doit etre exprimé en degres
+    :param image: l'image de depart
+    :param angle: angle de rotation
+    :return: une image ayant subi une rotation
+    """
     (h, w) = image.shape[:2]
     (cX, cY) = (w // 2, h // 2) #division entiere
 
