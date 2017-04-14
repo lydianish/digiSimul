@@ -7,11 +7,13 @@ from Resolution import re_echantillonnage
 from Rotation import rotation
 from Decoupage import decoupe
 
-#Methode qui renvoie le nom de l'image quand on lui donne un chemin
-#Données :
-#   - chemin : chemin où se trouve l'image
 
 def DonneNom(chemin):
+    """
+    
+    :param chemin: chemin où se trouve l'image
+    :return: le nom de l'image quand on lui donne un chemin
+    """
     l = chemin.split("/")
     r = l[len(l) - 1]
     return r
@@ -22,14 +24,25 @@ class Res_rot_dec :
     # Methode qui renvoie l'image ayant subi un re-échantillonage, une rotation et un découpage
     # Donées :
     #   - chemin : chemin où se trouve l'image
-    #   - ro: resolutionOriginale (c'est la resolution de l'image originale dont le chemin est donne en parametre)
-    #   - rc: resolutionCapteur (c'est la resolution finale)
-    #   - angle : l'angle de rotation
-    #   - (x,y)  : coordonnées du pixel en haut à gauche où l'on veut découper
+    #   - ro:
+    #   - rc:
+    #   - angle :
+    #   - (x,y)  :
     #   - taille du capteur: -taille_capteur_longueur
     #                        - taille_capteur_hauteur
 
     def ech_rot_dec(chemin,ro,rc,angle, x, y, taille_capteur_long, taille_capteur_hauteur):
+        """
+        :param chemin: chemin où se trouve l'image
+        :param ro: resolutionOriginale (c'est la resolution de l'image originale dont le chemin est donne en parametre)
+        :param rc: resolutionCapteur (c'est la resolution finale)
+        :param angle: l'angle de rotation
+        :param x: coordonnées de l'abscisse du pixel en haut à gauche où l'on veut découper
+        :param y: coordonnées de l'ordonné du pixel en haut à gauche où l'on veut découper
+        :param taille_capteur_long: taille du capteur en longueur
+        :param taille_capteur_hauteur: taille du capteur en hauteur
+        :return: l'image ayant subi un re-échantillonage, une rotation et un découpage
+        """
         #recupere le nom de l'image
         nom_image = DonneNom(chemin)
 
@@ -58,9 +71,9 @@ class Res_rot_dec :
         # format d'enregistrement: nom_angle_x_y
         m = re.search('[^.]*', nom_image)
         prefixe = m.group(0)
-        a = "%s _angle%s" % (prefixe, angle)
-        b = "%s _x%s" % (a, x)
-        nom = "%s _y%s" % (b, y)
+        a = "%s_angle%s" % (prefixe, angle)
+        b = "%s_x%s" % (a, x)
+        nom = "%s_y%s" % (b, y)
         ext = ".png"
         nom_complet = "%s%s" % (nom, ext)
         n.save(nom_complet, "PNG")
