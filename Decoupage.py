@@ -2,16 +2,18 @@ from PIL.Image import *
 from MyException import MyException, test, test007
 
 
-#Methode qui renvoie une image découpée, renvoie une exception si (x,y) n'appartiennent pas à l'image ou
-#           si la partie à découper ne contient que du noir
-#Données :
-#   - image : l'image de depart
-#   - (x,y)  : coordonnées du pixel en haut à gauche où l'on veut découper
-#   - taille du capteur: -taille_capteur_long
-#                        - taille_capteur_hauteur
 
 def decoupe(image,x,y,taille_capteur_long,taille_capteur_hauteur):
-    #Cette méthode renvoie une image découpée à partir des coordonnées (x,y) ainsi que la taille du capteur
+    """
+    
+    :param image: l'image de depart
+    :param x: coordonnée de l' abscisse du pixel en haut à gauche où l'on veut découper
+    :param y: coordonnée de  l' ordonnée du pixel en haut à gauche où l'on veut découper
+    :param taille_capteur_long: taille de capteur en longueur
+    :param taille_capteur_hauteur: taille du capteur en hauteur
+    :return: une image découpée, renvoie une exception si (x,y) n'appartiennent pas à l'image ou
+#           si la partie à découper ne contient que du noir
+    """
     try :
         test(image,x,y,taille_capteur_long,taille_capteur_hauteur)
         test007(image, x, y, taille_capteur_long, taille_capteur_hauteur)
