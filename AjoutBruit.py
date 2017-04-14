@@ -9,6 +9,7 @@ import list
 import threading
 import os
 # import pyopencl as cl
+import multiprocessing
 
 def echantillonageRect(npimage,nbPoint):
     """
@@ -93,14 +94,12 @@ def anayseImageCapteur(path):
     :return: Une liste de la variation des intensités des images, de Alpha, et de Gamma
     """
     listeImage = os.listdir(path)
-    print(listeImage)
     listVar = []
     listGama = []
     listAlpha = []
     for image in listeImage:
         #Lecture des images
         pathIm= "%s\%s"%(path,image)
-        print(pathIm)
         img = cv2.imread(pathIm,0)
         #Supprime les valeurs 0 et 255
         mask = np.logical_and(img != 0,img != 255)
@@ -160,45 +159,29 @@ def AjoutBruit(image,nbPoint, method):
 
 def AjoutBruitMultiThreah():
     """
-    Produit plusieurs threads permettant d'utiliser tous les coeurs pour l'ajout du bruit de speckel 
+    Produit plusieurs threads permettant d'utiliser tous les coeurs, pour l'ajout du bruit de speckel 
     :return: Void
     """
-    img = cv2.imread("images/vador.bmp")
+    nbCore = multiprocessing.cpu_count()
+    img = cv2.imread("images/fg1.bmp")
     img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-    t1 = threading.Thread(target=multipleImage,args=(img,1))
-    t2 = threading.Thread(target=multipleImage,args=(img,2))
-    t3 = threading.Thread(target=multipleImage,args=(img,3))
-    t4 = threading.Thread(target=multipleImage,args=(img,4))
-    t5 = threading.Thread(target=multipleImage,args=(img,5))
-    t6 = threading.Thread(target=multipleImage,args=(img,6))
-    t7 = threading.Thread(target=multipleImage,args=(img,7))
-    t1.start()
-    t2.start()
-    t3.start()
-    t4.start()
-    t5.start()
-    t6.start()
-    t7.start()
-    return 0;
-
-def multipleImage(img,p):
     it = 0
-    while it < 10:
+    p = {}
+    while it < nbCore:
         print(it)
-        img2 = AjoutBruit(img)
-        img3 = Image.fromarray(img2).\
-         save("imgT1It%sP%s"%(it,p),"gif")
+        p[it] = threading.Thread(target=multipleImage,args=(img,))
+        p[it].start()
+        it += 1
+
+def multipleImage(img):
+    it = 0
+    while it < 100:
+        print(it)
+        img2 = AjoutBruit(img, 2, "gen")
         it += 1
 
 
-
-
 #main
-img = cv2.imread("images/fg1.bmp")
-img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-img = AjoutBruit(img,2,"norm")
-Image.fromarray(img).show()
-
 
 # # GPU
 # # creer un contexte
