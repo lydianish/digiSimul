@@ -9,43 +9,11 @@ import list
 import threading
 import os
 # import pyopencl as cl
+import multiprocessing
 
-def echantillonageRadial(image, beamNumber, pxPerBeam, angle, height, dmin, dmax):
-    longeur, largeur = image.size
-    image = list(image.getdata())
-    image = [image[i * largeur:(i + 1) * largeur] for i in range(longeur)]
-    # Base sortie
-    imageSortie = np.zeros((longeur, largeur))
-    i = (3 * math.pi - angle) / 2
-    while i < (3 * math.pi + angle) / 2:
-        j = dmin
-        while j < dmax:
-            x = j * math.cos(i) + largeur / 2
-            y = -j * math.sin(i) + height
-            x = int(x)
-            y = int(y)
-            imageSortie[x][y] = image[x][y]
-
-            j += (((3 * math.pi + angle) / 2) - ((3 * math.pi - angle) / 2)) / (pxPerBeam - 1)
-        i += (dmax - dmin) / (beamNumber - 1)
-    return imageSortie
-
-
-def echantillonageRect(npimage, longeur, largeur, nbPointAbscisse, nbpointOrdonnee):
-    # Image base sortie :
-    imageSortie = np.ones((longeur, largeur))-2
-    y = 0
-    while y < largeur:
-        x=0
-        while x < longeur:
-            imageSortie[int(x)][int(y)] = npimage[int(x)][int(y)]
-            x += largeur
-        y += longeur/ nbpointOrdonnee
-    return imageSortie
-
-
-def echantillonageRect2(npimage,nbPoint):
+def echantillonageRect(npimage,nbPoint):
     """
+    Echantillone l'image selon le ration du nombre de point que l'on veut garder
     
     :param npimage: Image à echantilloner en format numpy 
     :param nbPoint: Ratio des points que l'on veut garder : 1 sur nbpoint
@@ -69,31 +37,32 @@ def echantillonageRect2(npimage,nbPoint):
     return npimage
 
 
-def AjoutSpeckel( img, borneInf, borneSup, ecartTypeGauss, u):
+def ajoutSpeckelGenNorm(img, alpha, gamma):
     longeur,largeur = img.shape
-    #matrices de vecteurs gaussiens
-    beta = 8
-    alpha = 1.98
-    # matrixGauss = stats.gennorm.rvs(beta,scale=alpha,loc=0,size=longeur*longeur*u).reshape(longeur, largeur, u)
-    # matrixGauss2 =  stats.gennorm.rvs(beta,scale=alpha,loc=0,size=longeur*longeur*u).reshape(longeur, largeur, u)
-    # matrixGauss = (stats.levy_stable_gen.rvs(alpha, 0,size = longeur*largeur*u,scale=gama).reshape(longeur, largeur, u))
-    # matrixGauss2 = (stats.levy_stable_gen.rvs(alpha,0,size = longeur*largeur*u,scale=gama).reshape(longeur, largeur, u))
-    matrixGauss = np.random.randn(longeur * largeur, u).reshape(longeur, largeur, u)
-    matrixGauss2 = np.random.randn(longeur * largeur, u).reshape(longeur, largeur, u)
+    #matrices de vecteurs généralisation de loi gaussienne :
+    matrixGauss = stats.gennorm.rvs(gamma,scale=alpha,loc=0,size=longeur*longeur).reshape(longeur, largeur)
+    matrixGauss2 =  stats.gennorm.rvs(gamma,scale=alpha,loc=0,size=longeur*longeur).reshape(longeur, largeur)
     imgRetour = np.sqrt(img + 0j)
-    i = 0
-    while i < u-1:
-        imgRetour += (matrixGauss[:,:,i]) + (matrixGauss2[:,:,i]*1j)
-        i += 1
+    imgRetour += (matrixGauss[:,:]) + (matrixGauss2[:,:]*1j)
     img = np.square(imgRetour.real) + np.square(imgRetour.imag)
     return img
 
 
+def ajoutSpeckelGauss(img, ecartType):
+    longeur,largeur = img.shape
+    #matrices de vecteurs loi normal :
+    matrixGauss =  ecartType * np.random.randn(longeur * largeur).reshape(longeur, largeur)
+    matrixGauss2 = ecartType * np.random.randn(longeur * largeur).reshape(longeur, largeur)
+    imgRetour = np.sqrt(img + 0j)
+    imgRetour += (matrixGauss[:,:]) + (matrixGauss2[:,:]*1j)
+    img = np.square(imgRetour.real) + np.square(imgRetour.imag)
+    return img
+
 def interpolation(img):
     """
     Interpolation bicubique
-    :param img: Image à interpoler sous forme de tableau numpy
-    :return: Fonction d'interpoaltion de l'image 
+    :param img: Image à interpoler, sous forme de tableau numpy
+    :return: Une fonction d'interpoaltion de l'image 
     """
     img = np.zeros(img.shape) + img
     l,L = img.shape
@@ -118,119 +87,101 @@ def construireImageInterpelee(function,l,L,nbPoint):
     return img
 
 
-def AjoutBruit(image):
+def anayseImageCapteur(path):
+    """
+    Analyse les paramètre du capteurs 
+    :param path: 
+    :return: Une liste de la variation des intensités des images, de Alpha, et de Gamma
+    """
+    listeImage = os.listdir(path)
+    listVar = []
+    listGama = []
+    listAlpha = []
+    for image in listeImage:
+        #Lecture des images
+        pathIm= "%s\%s"%(path,image)
+        img = cv2.imread(pathIm,0)
+        #Supprime les valeurs 0 et 255
+        mask = np.logical_and(img != 0,img != 255)
+        img = img[mask]
+        #Calcul de  la variance, esperance, alpha et gama
+        var = np.var(img)
+        esp = np.mean(img)
+        alpha = np.sqrt(np.square(math.pi) / (6 * var))
+        gama = math.exp(alpha * (esp - math.log(2, 10) - 0.5772156 * ((1 / alpha) - 1)))
+       #Ajout dans des valeurs dans une liste
+        listVar.append(esp)
+        listAlpha.append(alpha)
+        listGama.append(gama)
+    return listVar,listAlpha,listGama
+
+def AjoutBruit(image,nbPoint, method):
     """
     Fonction principale appelant les méthodes permettant d'ajouter un bruit de peckel à image de type optique
     
     :param image: Une image provenant de la bibliothèque "PIL Image" 
     :return: Un tableau bidimentionel numpy représentant une image 
     """
-    # conversion de l'image en array numpy
-    nbPoint = 2
-    l,L = image.shape
-    img = echantillonageRect2(image,nbPoint)
-    img4 = AjoutSpeckel(img, 1,1 , 0.2,3)
-    img5 = interpolation(img4)
-    img5 = construireImageInterpelee(img5,l,L,nbPoint)
-    return img5
+    if method == "gen":
+        l,L = image.shape
+        img = echantillonageRect(image,nbPoint)
+        #Analyse l'image
+        var,alpha,gama = anayseImageCapteur("C:/Users\polch_000\Desktop\ImagesEchographiques")
+        #Determination des fonctions de probabilité type kernel :
+        fctVar = stats.gaussian_kde(var)
+        fctAlpha = stats.gaussian_kde(alpha)
+        fctGama = stats.gaussian_kde(gama)
+        #Selection d'une valeur
+        alpha = fctAlpha.resample(1)
+        gama = fctGama.resample(1)
+        #Ajout du bruit :
+        img4 = ajoutSpeckelGenNorm(img,alpha,gama)
+        img5 = interpolation(img4)
+        img5 = construireImageInterpelee(img5,l,L,nbPoint)
+        return img5
+    if method == "norm":
+        l,L = image.shape
+        img = echantillonageRect(image,nbPoint)
+        #Analyse l'image
+        var,alpha,gama = anayseImageCapteur("C:/Users\polch_000\Desktop\ImagesEchographiques")
+        #Determination des fonctions de probabilité type kernel :
+        fctVar = stats.gaussian_kde(var)
+        #Selection d'une valeur
+        var = fctVar.resample(1)
+        var = 10
+        #Ajout du bruit
+        img4 = ajoutSpeckelGauss(img,np.sqrt(var))
+        img5 = interpolation(img4)
+        img5 = construireImageInterpelee(img5,l,L,nbPoint)
+        return img5
 
 
 
 def AjoutBruitMultiThreah():
     """
-    Produit plusieurs threads permettant d'utiliser tous les coeurs pour l'ajout du bruit de speckel 
+    Produit plusieurs threads permettant d'utiliser tous les coeurs, pour l'ajout du bruit de speckel 
     :return: Void
     """
-    img = cv2.imread("images/vador.bmp")
+    nbCore = multiprocessing.cpu_count()
+    img = cv2.imread("images/fg1.bmp")
     img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-    t1 = threading.Thread(target=multipleImage,args=(img,1))
-    t2 = threading.Thread(target=multipleImage,args=(img,2))
-    t3 = threading.Thread(target=multipleImage,args=(img,3))
-    t4 = threading.Thread(target=multipleImage,args=(img,4))
-    t5 = threading.Thread(target=multipleImage,args=(img,5))
-    t6 = threading.Thread(target=multipleImage,args=(img,6))
-    t7 = threading.Thread(target=multipleImage,args=(img,7))
-    t1.start()
-    t2.start()
-    t3.start()
-    t4.start()
-    t5.start()
-    t6.start()
-    t7.start()
-    return 0;
-
-def multipleImage(img,p):
     it = 0
-    while it < 10:
+    p = {}
+    while it < nbCore:
         print(it)
-        img2 = AjoutBruit(img)
-        img3 = Image.fromarray(img2).\
-         save("imgT1It%sP%s"%(it,p),"gif")
+        p[it] = threading.Thread(target=multipleImage,args=(img,))
+        p[it].start()
         it += 1
 
-def trouveAlphaGama():
-    img = cv2.imread("images/01_d_3.bmp")
-    img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-    l,L = img.shape
-    y = -1
-    somme = 0
-    sommeC = 0
-    cpt = 0
-    a = [0]
-    while y < L-1:
-        y +=1
-        x = -1
-        while x < l-1:
-            print(x,y)
-            x += 1
-            if ( img[x][y] != 0):
-                a.append(img[x][y])
-
-    print(a)
-    esp = np.mean(a,dtype=np.float64)
-    var = np.var(a,dtype=np.float64)
-    alpha = np.sqrt(np.square(math.pi)/(6*var))
-    gama = math.exp( alpha * (esp - math.log(2,10) - 0.57721566490153286*((1/alpha)-1) ))
-    print(esp,var,alpha,gama)
+def multipleImage(img):
+    it = 0
+    while it < 100:
+        print(it)
+        img2 = AjoutBruit(img, 2, "gen")
+        it += 1
 
 
-
-def anayseImageCapteur(path):
-    listPx = [0]
-    listeImage = os.listdir(path)
-    for image in listeImage:
-        p= "%s\%s"%(path,image)
-        y = -1
-        try :
-            imgTmp = cv2.imread(imgTmp)
-            l,L = imgTmp.shape
-            while y < L-1:
-                y +=1
-                x = -1
-                while x < l-1:
-                    print(x,y)
-                    x += 1
-                    if ( imgTmp[x][y] != 0):
-                        listPx.append(imgTmp[x][y])
-        except: print("Impossible d'analyser l'image %s"%(p))
-
-
-        esp = np.mean(listPx, dtype=np.float64)
-        var = np.var(listPx, dtype=np.float64)
-        alpha = np.sqrt(np.square(math.pi) / (6 * var))
-        gama = math.exp(alpha * (
-            esp - math.log(2, 10) - 0.5772156 * ((1 / alpha) - 1)))
-        print (esp,var,alpha,gama)
-
-# MAIN
-anayseImageCapteur("C:/Users\polch_000\Desktop\ImagesEchographiques")
-
-
-# img = cv2.imread("images/fg1.bmp")
-# img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-# AjoutBruit(img)
-# Image.fromarray(img).show()
-
+#main
 
 # # GPU
 # # creer un contexte
