@@ -39,9 +39,10 @@ def echantillonageRect(npimage,nbPoint):
 
 def ajoutSpeckelGenNorm(img, alpha, gamma):
     longeur,largeur = img.shape
+    print(longeur,largeur)
     #matrices de vecteurs généralisation de loi gaussienne :
-    matrixGauss = stats.gennorm.rvs(gamma,scale=alpha,loc=0,size=longeur*longeur).reshape(longeur, largeur)
-    matrixGauss2 =  stats.gennorm.rvs(gamma,scale=alpha,loc=0,size=longeur*longeur).reshape(longeur, largeur)
+    matrixGauss = stats.gennorm.rvs(gamma,scale=alpha,loc=0,size=longeur*largeur).reshape(longeur, largeur)
+    matrixGauss2 =  stats.gennorm.rvs(gamma,scale=alpha,loc=0,size=longeur*largeur).reshape(longeur, largeur)
     imgRetour = np.sqrt(img + 0j)
     imgRetour += (matrixGauss[:,:]) + (matrixGauss2[:,:]*1j)
     img = np.square(imgRetour.real) + np.square(imgRetour.imag)
@@ -64,12 +65,13 @@ def interpolation(img):
     :param img: Image à interpoler, sous forme de tableau numpy
     :return: Une fonction d'interpoaltion de l'image 
     """
+    print(img.shape)
     img = np.zeros(img.shape) + img
     l,L = img.shape
     x = np.arange(0,l,1)
     y = np.arange(0, L, 1)
     X,Y = np.meshgrid(x,y)
-    fonctionInter = interpolate.interp2d(x,y,img, kind='cubic')
+    fonctionInter = interpolate.interp2d(y,x,img, kind='cubic')
     return fonctionInter
 
 def construireImageInterpelee(function,l,L,nbPoint):
@@ -115,7 +117,7 @@ def anayseImageCapteur(path):
         listGama.append(gama)
     return listVar,listAlpha,listGama
 
-def AjoutBruit(image,nbPoint, method):
+def AjoutBruit(image,nbPoint, method,var,alpha,gama):
     """
     Fonction principale appelant les méthodes permettant d'ajouter un bruit de peckel à image de type optique
     
@@ -125,15 +127,6 @@ def AjoutBruit(image,nbPoint, method):
     if method == "gen":
         l,L = image.shape
         img = echantillonageRect(image,nbPoint)
-        #Analyse l'image
-        var,alpha,gama = anayseImageCapteur("C:/Users\polch_000\Desktop\ImagesEchographiques")
-        #Determination des fonctions de probabilité type kernel :
-        fctVar = stats.gaussian_kde(var)
-        fctAlpha = stats.gaussian_kde(alpha)
-        fctGama = stats.gaussian_kde(gama)
-        #Selection d'une valeur
-        alpha = fctAlpha.resample(1)
-        gama = fctGama.resample(1)
         #Ajout du bruit :
         img4 = ajoutSpeckelGenNorm(img,alpha,gama)
         img5 = interpolation(img4)
@@ -142,13 +135,6 @@ def AjoutBruit(image,nbPoint, method):
     if method == "norm":
         l,L = image.shape
         img = echantillonageRect(image,nbPoint)
-        #Analyse l'image
-        var,alpha,gama = anayseImageCapteur("C:/Users\polch_000\Desktop\ImagesEchographiques")
-        #Determination des fonctions de probabilité type kernel :
-        fctVar = stats.gaussian_kde(var)
-        #Selection d'une valeur
-        var = fctVar.resample(1)
-        var = 10
         #Ajout du bruit
         img4 = ajoutSpeckelGauss(img,np.sqrt(var))
         img5 = interpolation(img4)
