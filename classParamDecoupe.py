@@ -29,8 +29,12 @@ class ParametreDecoupe:
         #Label Titre
         fltd = Tk.Frame(self.framePrincipal, bg=self.couleur, padx=5)
         fltd.pack()
-        labelTitred = Tk.Label(fltd, text="DECOUPE", width=150, fg="black", bg=self.couleur)
+        labelTitred = Tk.Label(fltd, text="DECOUPE", width=150, fg="black", bg="grey80")
         labelTitred.pack()
+
+        #Separateur horizontal
+        separatorH = Tk.Frame( self.framePrincipal, height=2, bd=1, relief=Tk.SUNKEN)
+        separatorH.pack(fill=Tk.X)
 
         #fp
         fp = Tk.Frame(self.framePrincipal, bg=self.couleur, padx=5, pady=5)
