@@ -1,32 +1,29 @@
 from PIL.Image import *
-from MyException import MyException, test, test007
+from Exception import Exception, test, test007
+import numpy as np
 
 
-
-def decoupe(image,x,y,taille_capteur_long,taille_capteur_hauteur):
+def decoupe(tab, x, y, taille_capteur_long, taille_capteur_hauteur,tl,th):
     """
-    
-    :param image: l'image de depart
+
+    :param tab: tableau numpy d'une image
     :param x: coordonnée de l' abscisse du pixel en haut à gauche où l'on veut découper
     :param y: coordonnée de  l' ordonnée du pixel en haut à gauche où l'on veut découper
     :param taille_capteur_long: taille de capteur en longueur
     :param taille_capteur_hauteur: taille du capteur en hauteur
+    :param tl: taille en longueur du tableau
+    :param th: taille en hauteur du tableau
     :return: une image découpée, renvoie une exception si (x,y) n'appartiennent pas à l'image ou
             si la partie à découper ne contient que du noir
     """
-    try :
-        # Image.fromarray(image)
-        test(image,x,y,taille_capteur_long,taille_capteur_hauteur)
-        test007(image, x, y, taille_capteur_long, taille_capteur_hauteur)
-        box = (x, y, x+taille_capteur_long, y+taille_capteur_hauteur)
-        coupe = image.crop(box)
-        return (coupe)
-    except MyException as e:
+    try:
+        test(tab,x, y, taille_capteur_long, taille_capteur_hauteur,tl,th)
+        test007(tab, x, y, taille_capteur_long, taille_capteur_hauteur)
+        coupe= tab[y:y+taille_capteur_hauteur,x:x+taille_capteur_long]
+        return(coupe)
+    except Exception as e:
         print(e)
         exit()
 
 
-# # Test de la méthode
-im = open('101_1.tif')
-a=decoupe(im,0,0,200,200)
-Image.show(a)
+
