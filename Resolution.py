@@ -177,10 +177,4 @@ def re_echantillonnage(ro, rc, image):
         # print("taille initiale = finale ", imOCopie.size)
         return image
 
-# chemin= 'C:/Users/Noemie/PycharmProjects/Projet/03_d_2.bmp'
-# t= (102,145)
-# image = Image.open('101_1.tif')
-# print(image.size)
-# im = (image.resize(t, Image.ANTIALIAS))
-# tl,th=image.shape
-# print(image.size)
+
