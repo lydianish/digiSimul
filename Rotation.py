@@ -28,9 +28,5 @@ def rotation(image, angle):
 
     return (imagefinale)
 
-# Test de la méthode
-im = cv2.imread('101_1.tif', -2)
-a=rotation(im,120)
-cv2.imshow("a",a)
-cv2.waitKey(0)
+
 
