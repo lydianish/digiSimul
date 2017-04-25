@@ -3,7 +3,7 @@ import cv2
 
 
 
-def rotation(image, angle):
+def rotation(image, angle,w,h):
     """
     Containtes : - Utiliser la fonction cv2.imread() pour l'image
                  - l'angle doit etre exprimé en degres
@@ -11,7 +11,6 @@ def rotation(image, angle):
     :param angle: angle de rotation
     :return: une image ayant subi une rotation
     """
-    (h, w) = image.shape[:2]
     (cX, cY) = (w // 2, h // 2) #division entiere
 
     M = cv2.getRotationMatrix2D((cX, cY), -angle, 1.0)
@@ -20,17 +19,10 @@ def rotation(image, angle):
 
     nW = int((h * sin) + (w * cos))
     nH = int((h * cos) + (w * sin))
-
     M[0,2] =M[0, 2]+ (nW / 2) - cX
     M[1,2] =M[1, 2]+ (nH / 2) - cY
-
-    imagefinale=cv2.warpAffine(image, M, (nW, nH))
-
+    imagefinale = cv2.warpAffine(image, M, (nW, nH))
     return (imagefinale)
 
-# # Test de la méthode
-# im = cv2.imread('101_1.tif', -2)
-# a=rotation(im,120)
-# cv2.imshow("a",a)
-# cv2.waitKey(0)
+
 

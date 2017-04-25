@@ -92,23 +92,20 @@ def resolution(t, d):
 #Contrainte : ro > rc
 
 #Code :
-def sous_echantillonnage(ro, rc, chemin):
+def sous_echantillonnage(ro, rc, image):
     if(ro <= rc):
         print("Erreur de sous_echantillonnage, ro doit etre strictement plus grand que rc")
         return
     else:
         # print("Vous etes dans Sous-echantillonnage")
-        imageOriginale = Image.open(chemin)
-        imOCopie = imageOriginale.copy()
-        # print("taille initiale", imOCopie.size)
         #Calcul des dimensions de l'image
-        d = taille_en_pouces(ro, imOCopie.size)
+        d = taille_en_pouces(ro, image.size)
         # print("dimension", d)
         #Calcul de la nouvelle de l'image pour la resolution rc
         t = taille_en_pixels(rc, d)
         # print("nouvelle taille", t)
         #sous-echantillonnage
-        im = (imOCopie.copy()).resize(t, Image.ANTIALIAS)
+        im = (image.copy()).resize(t, Image.ANTIALIAS)
         return im
 
 # Test de la methode :
@@ -132,23 +129,21 @@ def sous_echantillonnage(ro, rc, chemin):
 # Contrainte : ro < rc
 
 #Code :
-def sur_echantillonnage(ro, rc, chemin):
+def sur_echantillonnage(ro, rc, image):
     if (ro >= rc):
         print("Erreur de sur_echantillonnage, ro doit etre strictement plus petit que rc")
         return
     else:
         # print("Vous etes dans Sur-echantillonnage")
-        imageOriginale = Image.open(chemin)
-        imOCopie = imageOriginale.copy()
         # print("taille initiale", imOCopie.size)
         #Calcul des dimensions de l'image
-        d = taille_en_pouces(ro, imOCopie.size)
+        d = taille_en_pouces(ro, image.size)
         # print("dimension", d)
         #Calcul de la nouvelle de l'image pour la resolution rc
         t = taille_en_pixels(rc, d)
         # print("nouvelle taille", t)
         #sous-echantillonnage
-        im = (imOCopie.copy()).resize(t, Image.ANTIALIAS)
+        im = (image.copy()).resize(t, Image.ANTIALIAS)
         return im
 
 # Test de la methode :
@@ -170,16 +165,16 @@ def sur_echantillonnage(ro, rc, chemin):
 #Contrainte : nulle
 
 #Code :
-def re_echantillonnage(ro, rc, chemin):
+def re_echantillonnage(ro, rc, image):
     if(ro > rc):                             #l 'image originale  une resolution plus grande que celle du capteur
-        im = sous_echantillonnage(ro, rc, chemin)
+        im = sous_echantillonnage(ro, rc, image)
         return im
     elif(ro < rc):                           #l 'image originale  une resolution plus petite que celle du capteur
-        im = sur_echantillonnage(ro, rc, chemin)
+        im = sur_echantillonnage(ro, rc, image)
         return im
     else:                                    #l 'image originale  une resolution egale a celle du capteur
         # print("Vous etes dans Re-echantillonnage:\nro = rc --> rien à faire")
-        imageOriginale = Image.open(chemin)
-        imOCopie = imageOriginale.copy()
         # print("taille initiale = finale ", imOCopie.size)
-        return imOCopie
+        return image
+
+

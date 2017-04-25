@@ -1,7 +1,6 @@
 import AjoutBruit
 import Res_rot_dec
 import LoisPositionnement
-import Préliminaire
 from scipy import stats
 import Images
 import os
@@ -19,31 +18,35 @@ def modeliserImage(pathBdd, pathSave, nomImages, nombreImages, nbPoints,resoluti
     global nombreImagesGen
     itImage = 0
     numeroImage = 0
-    # pour chaque image
     reste = nombreImages % len(nomImages)
+    # pour chaque image
     while itImage < len(nomImages):
-        it = 0
+
         #Ouverture de l'image
         pathIm = "%s\%s" % (pathBdd, nomImages[numeroImage])
         img = cv2.imread(pathIm,-1)
+        tailleImageX,tailleImageY = img.shape
+        print(tailleImageX,tailleImageY)
     # Sous-résolution
-        # img  = Resolution.re_echantillonnage(resolutionOriginal,resolutionCapteur,img)
+    #     img  = Resolution.re_echantillonnage(resolutionOriginal,resolutionCapteur,img)
 
-        nombreImages = nombreImages // len(nomImages)
+        nombreImagesTmp = nombreImages // len(nomImages)
         if (reste > 0):
-            nombreImages += 1
+            nombreImagesTmp += 1
             reste -= 1
-        while it <= nombreImages:
+        print("nombreImagesparImagesParCoeur %s"%nombreImagesTmp)
+        it = 0
+        while it <= nombreImagesTmp:
         # Découpage et rotation de l'image
             (x,y,theta) = LoisPositionnement.unePosition(minX,maxX,minY,maxY,minAngle,maxAngle)
-            # Res_rot_dec.Res_rot_dec.ech_rot_dec()
-
+            img = Res_rot_dec.ech_rot_dec(img, theta, x, y, largeur, longueur,tailleImageY,tailleImageX)
+            print("shape %s" %img.size)
         # Ajout du bruit:
             img = AjoutBruit.AjoutBruit(img, nbPoints, methode, var, alpha, gama)
             it += 1
             # Image.fromarray(img).show()
             nombreImagesGen += 1
-            Image.fromarray(img).save("%s/%s%s%s.gif" %(pathSave,nomImages[numeroImage],it,itImage))
+            Image.fromarray(img).save("%s/%s%s%s.gif" %(pathSave,nomImages[numeroImage],it,nombreImagesGen))
             #TODO enregistrer l'image
 
         print(nombreImagesGen)
@@ -96,17 +99,17 @@ def modeliserImagesMultithread(pathCapteur, pathBdd, pathSave, nombreImages, nbP
 pathCapteur =  "C:/Users\polch_000\Desktop\ImagesEchographiques"
 pathBdd = "C:/Users\polch_000\Desktop\imagesBdd"
 pathSave = "C:/Users\polch_000\Desktop\imagesRes"
-nombreImages = 120
+nombreImages = 100
 nbPoints = 6
 resolutionOriginal = 200
-resolutionCapteur = 300
-largeur = 100
-longueur = 100
+resolutionCapteur = 100
+largeur = 50
+longueur = 50
 minX,maxX,minY,maxY,minAngle,maxAngle = 0,100,0,100,0,360
 analyse = False
 methodeLente = False
 var = 5
 alpha = 1.8
 gama = 6
-coeursLibres = 1
+coeursLibres = 6
 modeliserImagesMultithread( pathCapteur, pathBdd, pathSave,nombreImages, nbPoints, resolutionOriginal, resolutionCapteur, largeur, longueur, minX,maxX,minY,maxY,minAngle,maxAngle, analyse,methodeLente, var, alpha , gama  ,coeursLibres)
