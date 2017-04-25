@@ -29,7 +29,7 @@ class ParametreDecoupe:
         #Label Titre
         fltd = Tk.Frame(self.framePrincipal, bg=self.couleur, padx=5)
         fltd.pack()
-        labelTitred = Tk.Label(fltd, text="DECOUPE", width=150, fg="black", bg="grey80")
+        labelTitred = Tk.Label(fltd, text="DECOUPE", width=150,font='Calibri 20 bold', fg="black", bg="grey80")
         labelTitred.pack()
 
         #Separateur horizontal
@@ -80,6 +80,9 @@ class ParametreDecoupe:
         labelmaxA.grid(row=2, column=3)
         entreemaxA = Tk.Entry(fp, textvariable=self.maxA, width=30)
         entreemaxA.grid(row=2, column=4)
+
+        la = Tk.Label(fp, text="  degré(s)", fg="black", bg=self.couleur)
+        la.grid(row=2, column=5)
 
         #Tk.Button(self.framePrincipal, text=" Valider ", command=self.getParamDecoupe).pack()
 
