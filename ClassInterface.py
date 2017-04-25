@@ -14,7 +14,7 @@ class Fenetre:
         """Constructeur de la fenetre"""
         self.couleur = "grey"
         self.fenetre = Tk.Tk()
-        self.fenetre.geometry("1000x680")
+        self.fenetre.geometry("1260x680")
         self.fenetre.title("DigiSimul")
         self.fenetre['bg'] = 'grey'
         #Conteneur Principal: Canvas
@@ -22,7 +22,7 @@ class Fenetre:
         #Ecran d'accueil: DigiSimul
         self.FrameAccueil = Tk.Frame(self.can, width = 1000, height = 680)
         self.photo = None
-        self.bouttonCommencer = Tk.Button(self.FrameAccueil, width = 30, height = 2, text=" Commencer ",font='Times 20', command=self.Commencer)
+        self.bouttonCommencer = Tk.Button(self.FrameAccueil, width = 40, height = 2, text=" Pour commencer, veuillez cliquez ici",font='Calibri 20', command=self.Commencer, cursor="hand2")
         #Frame Pricipal: pour la saisie des données
         self.framePrincipal = Tk.Frame(self.can, width = 1000, height = 680)
         #self.framePrincipal = Tk.Frame(self.can)
@@ -32,7 +32,7 @@ class Fenetre:
         self.frameParamVitesse = Tk.Frame(self.framePrincipal, bg=self.couleur)
         self.numVitesse = Tk.IntVar()
         self.frameParamValidation = Tk.Frame(self.framePrincipal)
-        self.bouttonValider = Tk.Button(self.frameParamValidation, text=" Valider ", command=self.buttonValid)
+        self.bouttonValider = Tk.Button(self.frameParamValidation, width = 10, text=" Valider ",font='Calibri 15', padx=5, pady=5, command=self.buttonValid, cursor="hand2")
         self.données = ()
 
     def initialise(self):
@@ -40,7 +40,7 @@ class Fenetre:
 
         #FRAME ACCUEIL
         #Zone pour l'affichage de l'image
-        labelTitre = Tk.Label(self.FrameAccueil, text="BIENVENU !", font='Times 24', width=50, height=2, padx=5, fg="black")
+        labelTitre = Tk.Label(self.FrameAccueil, text="BIENVENUE sur ...", font='Calibri 24', width=50, height=2, padx=5, fg="black")
         labelTitre.pack()
         # Image
         chemin = "digiSimul.png"
@@ -67,7 +67,7 @@ class Fenetre:
         #Zone pour le choix de la vitesse
         flt = Tk.Frame(self.frameParamVitesse, bg=self.couleur)
         flt.pack()
-        labelTitre = Tk.Label(flt, text="VITESSE", width=150, padx=5, fg="black", bg="grey80")
+        labelTitre = Tk.Label(flt, text="VITESSE", font='Calibri 20 bold', width=150, padx=5, fg="black", bg="grey80")
         labelTitre.pack()
         #Separateur horizontal
         separatorH = Tk.Frame(flt, height=2, bd=1, relief=Tk.SUNKEN)
@@ -75,15 +75,17 @@ class Fenetre:
         f = Tk.Frame(flt, bg=self.couleur)
         f.pack()
         #SpinBox :
+        laSpinBox = Tk.Label(f, text="Nombre de coeur(s) utilisé(s)", fg="black", bg=self.couleur)
+        laSpinBox.grid(row=0, column=0)
         s = Tk.Spinbox(f, from_=1, to=10)
-        s.grid(row=0, column=0)
-        labelTitre = Tk.Label(f, text="", width=50, padx=5, fg="black", bg=self.couleur)
-        labelTitre.grid(row=0, column=1)
+        s.grid(row=0, column=1)
+        labelTitre = Tk.Label(f, text="", width=10, padx=5, fg="black", bg=self.couleur)
+        labelTitre.grid(row=0, column=2)
         #Boutons Lent et Rapide
         boutonLent = Tk.Radiobutton(f, bg=self.couleur, text="Lent", variable=self.numVitesse, value=0, command=self.valnumVitesse)
         boutonRapide = Tk.Radiobutton(f, bg=self.couleur, text="Rapide", variable=self.numVitesse, value=1, command=self.valnumVitesse)
-        boutonLent.grid(row=0, column=1)
-        boutonRapide.grid(row=0, column=2)
+        boutonLent.grid(row=0, column=3)
+        boutonRapide.grid(row=0, column=4)
         #Zone pour valider les données
         self.bouttonValider.pack()
 
