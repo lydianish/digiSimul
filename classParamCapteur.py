@@ -17,6 +17,9 @@ class ParametreCapteur:
         self.FrameChoixMode = Tk.Frame(self.framePrincipal)
         self.FrameAffiche = Tk.Frame(self.framePrincipal,bg=self.couleur)
         self.frameRes = Tk.Frame(self.framePrincipal, bg=self.couleur, borderwidth=2, padx=5, pady=5)
+        #self.frameManuel = None
+        #self.frameManuel = Tk.Frame(self.frameMode, bg=self.couleurManuel, padx=5, pady=5, relief=Tk.GROOVE)
+        #self.frameAnalyse = Tk.Frame(self.frameMode, bg=self.couleurAnalyse, height=self.frameManuel.winfo_height(), padx=5, pady=5, relief=Tk.SUNKEN)
         self.frameManuel = Tk.Frame(self.FrameAffiche, bg=self.couleurManuel, padx=5, pady=5, relief=Tk.GROOVE)
         self.frameAnalyse = Tk.Frame(self.FrameAffiche, bg=self.couleurAnalyse, padx=5, pady=5, relief=Tk.SUNKEN)
         self.numMode = Tk.IntVar()
@@ -41,7 +44,7 @@ class ParametreCapteur:
         #Label Titre
         flt = Tk.Frame(self.framePrincipal, bg=self.couleur, padx=5)
         flt.pack()
-        labelTitre = Tk.Label(flt, text="CAPTEUR", width=150, bg="grey80")
+        labelTitre = Tk.Label(flt, text="CAPTEUR", width=150,font='Calibri 20 bold', bg="grey80")
         labelTitre.pack()
         #Separateur horizontal
         separatorH = Tk.Frame( self.framePrincipal, height=2, bd=1, relief=Tk.SUNKEN)
@@ -49,7 +52,7 @@ class ParametreCapteur:
         #Label Mode
         flm = Tk.Frame(self.framePrincipal, bg=self.couleur)
         flm.pack()
-        labelMode = Tk.Label(flm, text="Mode", width=120, fg="black", bg=self.couleur)
+        labelMode = Tk.Label(flm, text="Mode", width=120, font='Calibri 15 bold', fg="black", bg=self.couleur)
         labelMode.pack()
         labelMode = Tk.Label(flm, text="* Choisissez un mode", width=120, fg="red", bg=self.couleur)
         labelMode.pack()
@@ -82,6 +85,10 @@ class ParametreCapteur:
         labelGamma.grid(row=1, column=0)
         entreeGamma = Tk.Entry(FrameAlphaGamma, textvariable=self.gama, width=30)
         entreeGamma.grid(row=1, column=1)
+
+        labelRes = Tk.Label(FrameAlphaGamma, text="     (pour le mode lent)", fg="black", bg=self.couleur)
+        labelRes.grid(row=0, column=2,rowspan=2 )
+
         # Separatuer horizontalMan
         separatorHM = Tk.Frame(self.frameManuel, bg=self.couleur, height=2, bd=1, relief=Tk.SUNKEN)
         separatorHM.pack(fill=Tk.X, padx=5, pady=5)
@@ -94,10 +101,12 @@ class ParametreCapteur:
         labelVar.grid(row=0, column=0)
         entreeVar = Tk.Entry(FrameVar, textvariable=self.var, width=30)
         entreeVar.grid(row=0, column=1)
+        labelRes = Tk.Label(FrameVar, text="    (pour le mode rapide)", fg="black", bg=self.couleur)
+        labelRes.grid(row=0, column=2)
 
         # self.FrameModeAnalyse.
         # Analyse
-        labelDossier = Tk.Label(self.frameAnalyse, bg=self.couleurAnalyse, text="Chemin vers le dossier")
+        labelDossier = Tk.Label(self.frameAnalyse, bg=self.couleurAnalyse, text="* Chemin vers le dossier")
         labelDossier.grid(row=0, column=0)
         entreeDossier = Tk.Entry(self.frameAnalyse, textvariable=self.dossier, width=30)
         entreeDossier.grid(row=0, column=1)
@@ -112,7 +121,7 @@ class ParametreCapteur:
         #Label Caractériques
         flr = Tk.Frame(self.framePrincipal, bg=self.couleur)
         flr.pack()
-        labelRes = Tk.Label(flr, text="Caractéristiques", width=120, fg="black", bg=self.couleur)
+        labelRes = Tk.Label(flr, text="Caractéristiques",font='Calibri 15 bold', width=120, fg="black", bg=self.couleur)
         labelRes.pack()
 
         # Ajout des composantes au frameRes
@@ -156,6 +165,8 @@ class ParametreCapteur:
         """Methode a executer selon la valeur du numMode"""
         print(self.numMode.get())
         if (self.numMode.get()== 0):
+            #labelRes = Tk.Label(self.FrameAffiche, text="En choisissant ce mode, la saisie de toutes les données est obligatoire", fg="black", bg=self.couleur)
+            #labelRes.pack()
             self.miseAJourCouleurManuel()
         else:
             self.miseAJourCouleurAnalyse()

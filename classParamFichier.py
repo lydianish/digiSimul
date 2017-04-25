@@ -23,7 +23,7 @@ class ParametreFichier:
         #Label Titre
         fltf = Tk.Frame(self.framePrincipal, bg=self.couleur, padx=5)
         fltf.pack()
-        labelTitref = Tk.Label(fltf, text="FICHIER", width=150, fg="black", bg="grey80")
+        labelTitref = Tk.Label(fltf, text="FICHIER",font='Calibri 20 bold', width=150, fg="black", bg="grey80")
         labelTitref.pack()
 
         #Separateur horizontal
