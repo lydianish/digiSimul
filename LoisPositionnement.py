@@ -17,7 +17,7 @@ def unePosition(minLongeur, maxLongueur, minLargeur,maxLargeur,minAngle,maxAngle
     x = numpy.random.normal((maxLargeur-minLargeur)/2, (maxLargeur - minLargeur) / (2*2.56))
     y = numpy.random.normal((maxLongueur-minLongeur)/2, (maxLongueur - minLongeur) / (2*2.56))
     theta = numpy.random.normal((maxAngle-minAngle)/2, (maxAngle - minAngle) / (2*2.56))
-    return x,y,theta
+    return int(x), int(y),int(theta)
 
 #Main test
 position = unePosition(0,100,0,100,0,360)

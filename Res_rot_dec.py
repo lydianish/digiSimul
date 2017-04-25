@@ -23,17 +23,10 @@ def ech_rot_dec(image, angle, x, y, taille_capteur_long, taille_capteur_hauteur,
     rot = rotation(image, angle,tl,th)
 
 
-    # Nouvelles valeurs de x, y , taille_capteur
-    hautmin, longmin = rot.shape[:2]
-    xnouv = x * longmin / tl
-    ynouv = y * hautmin / th
-    tcl = taille_capteur_hauteur * hautmin / th
-    tch = taille_capteur_long * longmin / tl
-
     # Passer d'une image à un tableau numpy
     tab = np.array(rot)
     h, l = tab.shape[:2]
     # découpage
-    n = decoupe(tab, round(xnouv), round(ynouv), round(tcl), round(tch), l, h)
+    n = decoupe(tab, x, y, taille_capteur_long, taille_capteur_hauteur, l, h)
     return n
 

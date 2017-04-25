@@ -2,7 +2,8 @@ import h5py
 from PIL.Image import *
 
 
-def sauv(image):
+def sauv(image,nom,pathSave):
+    print(pathSave)
     """
     Enregistre l'image passee en parametre sous format hdf5 à l'adresse donnee par l'utilisateur ou dans un fichier
     prédéfinie, pour une génération random d'images.
@@ -10,32 +11,17 @@ def sauv(image):
     :return: rajoute l'image dans le fichier h5 à l'adresse donnée par l'utilisateur ou créé un nouveau fichier s'il n'existe pas
     """
 
-    im = open(image)
-    #Demande du nom du fichier
-    fic = input("Entrez le nom du dossier : ")
-
-    #Demande du nom de l'utilisateur
-    numn = input("Entrez le numéro de l'utilisateur : ")
-    nomu="utilisateur : "+numn
-
-    #Demande du numéro du doigt
-    numd = input("Entrez le numéro du doigt : ")
-    nomd="doigt : "+numd
 
     #Création du fichier empreintedigitale
-    empdig = h5py.File(fic + ".h5")            # par défaut c'est , 'a' -> permet lecture et écriture s'il existe ou le créé s'il n'existe pas
+    empdig = h5py.File(pathSave + ".h5")            # par défaut c'est , 'a' -> permet lecture et écriture s'il existe ou le créé s'il n'existe pas
 
-    if(nomu+"/"+nomd+"/"+image in empdig):
-        print("Il existe déjà une image de ce nom dans le chemin suivant :"+fic+"/"+nomu+"/"+nomd)
+    if(pathSave+nom in empdig):
+        print("Il existe déjà une image de ce nom dans le chemin suivant :"+pathSave+"/"+nom)
     else:
-        pixels = list(im.getdata())
-        empdig.create_dataset(nomu + "/" + nomd + "/" + image, data=pixels, dtype='i')
-        empdig[nomu + "/" + nomd + "/" + image]
+        pixels = list(image.getdata())
+        empdig.create_dataset(pathSave+ nom, data=pixels, dtype='i')
+        empdig[pathSave+ nom]
     # Fermeture du fichier
     empdig.close()
-
-
-#Test de la méthode
-sauv('101_1.tif')
 
 

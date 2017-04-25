@@ -23,11 +23,12 @@ def test(tab,x, y, taille_capteur_long, taille_capteur_hauteur, l, h):
     """
     if (x < 0 or y < 0 or taille_capteur_long <= 0 or taille_capteur_hauteur <= 0):
         raise Exception("Il faut des valeurs positives.")
-    elif (l < x or h < y or l - x < taille_capteur_long  or h - y < taille_capteur_hauteur+1 ):
+    elif (l < x or h < y or l - x < taille_capteur_long  or h - y < taille_capteur_hauteur):
         raise Exception("Les valeurs sortent de l'image.")
 
 
 def test007(tab, x, y, taille_capteur_long, taille_capteur_hauteur):
+    print(x,y)
     """
     Teste si la partie à découper ne contient que du noir (il faut au moins 10 pixels de
      couleur pour que l'image soit affichée)

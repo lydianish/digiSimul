@@ -11,6 +11,7 @@ import multiprocessing
 import threading
 import Res_rot_dec
 import Resolution
+import hdf5
 
 nombreImagesGen = 0
 
@@ -39,15 +40,19 @@ def modeliserImage(pathBdd, pathSave, nomImages, nombreImages, nbPoints,resoluti
         while it <= nombreImagesTmp:
         # Découpage et rotation de l'image
             (x,y,theta) = LoisPositionnement.unePosition(minX,maxX,minY,maxY,minAngle,maxAngle)
-            img = Res_rot_dec.ech_rot_dec(img, theta, x, y, largeur, longueur,tailleImageY,tailleImageX)
-            print("shape %s" %img.size)
+            try:
+                img = Res_rot_dec.ech_rot_dec(img, theta, x, y, largeur, longueur,tailleImageY,tailleImageX)
+            except:
+                print("t")
         # Ajout du bruit:
             img = AjoutBruit.AjoutBruit(img, nbPoints, methode, var, alpha, gama)
+            nom = '%s%s%s' %(nomImages[numeroImage],it,nombreImagesGen)
+            hdf5.sauv(Image.fromarray(img),nom, pathSave)
             it += 1
             # Image.fromarray(img).show()
             nombreImagesGen += 1
-            Image.fromarray(img).save("%s/%s%s%s.gif" %(pathSave,nomImages[numeroImage],it,nombreImagesGen))
-            #TODO enregistrer l'image
+
+
 
         print(nombreImagesGen)
         itImage += 1
@@ -99,17 +104,17 @@ def modeliserImagesMultithread(pathCapteur, pathBdd, pathSave, nombreImages, nbP
 pathCapteur =  "C:/Users\polch_000\Desktop\ImagesEchographiques"
 pathBdd = "C:/Users\polch_000\Desktop\imagesBdd"
 pathSave = "C:/Users\polch_000\Desktop\imagesRes"
-nombreImages = 100
-nbPoints = 6
+nombreImages = 5
+nbPoints = 2
 resolutionOriginal = 200
 resolutionCapteur = 100
-largeur = 50
-longueur = 50
+largeur = 100
+longueur = 100
 minX,maxX,minY,maxY,minAngle,maxAngle = 0,100,0,100,0,360
 analyse = False
 methodeLente = False
-var = 5
+var = 4
 alpha = 1.8
 gama = 6
-coeursLibres = 6
+coeursLibres = 2
 modeliserImagesMultithread( pathCapteur, pathBdd, pathSave,nombreImages, nbPoints, resolutionOriginal, resolutionCapteur, largeur, longueur, minX,maxX,minY,maxY,minAngle,maxAngle, analyse,methodeLente, var, alpha , gama  ,coeursLibres)
