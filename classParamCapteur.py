@@ -9,11 +9,16 @@ class ParametreCapteur:
     def __init__(self, parent):
         """Constructeur du frame ParametreCapteur"""
         self.couleur = "grey"
+        col = "grey60"
+        self.couleurManuel = "grey"
+        self.couleurAnalyse = "grey"
         self.framePrincipal = Tk.Frame(parent, bg=self.couleur)
         self.frameMode = Tk.Frame(self.framePrincipal, bg=self.couleur)
+        self.FrameChoixMode = Tk.Frame(self.framePrincipal)
+        self.FrameAffiche = Tk.Frame(self.framePrincipal,bg=self.couleur)
         self.frameRes = Tk.Frame(self.framePrincipal, bg=self.couleur, borderwidth=2, padx=5, pady=5)
-        self.frameManuel = None
-        self.frameAnalyse = None
+        self.frameManuel = Tk.Frame(self.FrameAffiche, bg=self.couleurManuel, padx=5, pady=5, relief=Tk.GROOVE)
+        self.frameAnalyse = Tk.Frame(self.FrameAffiche, bg=self.couleurAnalyse, padx=5, pady=5, relief=Tk.SUNKEN)
         self.numMode = Tk.IntVar()
         self.alpha = Tk.StringVar()
         self.alpha.set("0")
@@ -36,36 +41,44 @@ class ParametreCapteur:
         #Label Titre
         flt = Tk.Frame(self.framePrincipal, bg=self.couleur, padx=5)
         flt.pack()
-        labelTitre = Tk.Label(flt, text="CAPTEUR", width=150, bg=self.couleur)
+        labelTitre = Tk.Label(flt, text="CAPTEUR", width=150, bg="grey80")
         labelTitre.pack()
-        separator = Tk.Frame( self.framePrincipal,height=2, bd=1, relief=Tk.SUNKEN)
-        separator.pack(fill=Tk.X, padx=5, pady=5)
+        #Separateur horizontal
+        separatorH = Tk.Frame( self.framePrincipal, height=2, bd=1, relief=Tk.SUNKEN)
+        separatorH.pack(fill=Tk.X)
         #Label Mode
         flm = Tk.Frame(self.framePrincipal, bg=self.couleur)
         flm.pack()
         labelMode = Tk.Label(flm, text="Mode", width=120, fg="black", bg=self.couleur)
         labelMode.pack()
+        labelMode = Tk.Label(flm, text="* Choisissez un mode", width=120, fg="red", bg=self.couleur)
+        labelMode.pack()
         # Ajout des composantes au frameMode
         self.frameMode.pack()
         # Zone pour le choix du mode: Manuel ou Analyse
-        boutonManuel = Tk.Radiobutton(self.frameMode, bg=self.couleur, text="Manuel", variable=self.numMode, value=0, command=self.valnumMode)
-        boutonAnalyse = Tk.Radiobutton(self.frameMode, bg=self.couleur, text="Analyse", variable=self.numMode, value=1, command=self.valnumMode)
-
+        #Frames
+        #FrameChoixMode
+        self.FrameChoixMode.pack()
+        boutonManuel = Tk.Radiobutton(self.FrameChoixMode, bg=self.couleur, text="Manuel", variable=self.numMode, value=0, command=self.valnumMode)
+        boutonManuel.deselect()
+        boutonAnalyse = Tk.Radiobutton(self.FrameChoixMode, bg=self.couleur, text="Analyse", variable=self.numMode, value=1, command=self.valnumMode)
+        boutonAnalyse.deselect()
         boutonManuel.grid(row=0, column=0)
+        boutonAnalyse.grid(row=0, column=1)
+
+        #self.FrameModeManuel
         # Zone pour la saisie des autres données
         # Manuel
-        self.frameManuel = Tk.Frame(self.frameMode, bg=self.couleur, padx=5, pady=5, relief=Tk.GROOVE)
-        self.frameManuel.grid(row=1, column=0)
         # FrameAlphaGamma
-        FrameAlphaGamma = Tk.Frame(self.frameManuel, bg=self.couleur)
+        FrameAlphaGamma = Tk.Frame(self.frameManuel, bg=self.couleurManuel)
         FrameAlphaGamma.pack()
         # Alpha
-        labelAlpha = Tk.Label(FrameAlphaGamma, bg=self.couleur, text="Alpha", padx=5, pady=5)
+        labelAlpha = Tk.Label(FrameAlphaGamma, bg=self.couleurManuel, text="Alpha", padx=5, pady=5)
         labelAlpha.grid(row=0, column=0)
         entreeAlpha = Tk.Entry(FrameAlphaGamma, textvariable=self.alpha, width=30)
         entreeAlpha.grid(row=0, column=1)
         # Gamma
-        labelGamma = Tk.Label(FrameAlphaGamma, bg=self.couleur, text="Gamma", padx=5, pady=5)
+        labelGamma = Tk.Label(FrameAlphaGamma, bg=self.couleurManuel, text="Gamma", padx=5, pady=5)
         labelGamma.grid(row=1, column=0)
         entreeGamma = Tk.Entry(FrameAlphaGamma, textvariable=self.gama, width=30)
         entreeGamma.grid(row=1, column=1)
@@ -74,29 +87,23 @@ class ParametreCapteur:
         separatorHM.pack(fill=Tk.X, padx=5, pady=5)
         # Var
         #FrameVar
-        FrameVar = Tk.Frame(self.frameManuel, bg=self.couleur)
+        FrameVar = Tk.Frame(self.frameManuel, bg=self.couleurManuel)
         FrameVar.pack()
         #
-        labelVar = Tk.Label(FrameVar, bg=self.couleur, text="Var        ")
+        labelVar = Tk.Label(FrameVar, bg=self.couleurManuel, text="Variance  ")
         labelVar.grid(row=0, column=0)
         entreeVar = Tk.Entry(FrameVar, textvariable=self.var, width=30)
         entreeVar.grid(row=0, column=1)
 
-        #Frame intermediaire
-        sep = Tk.Frame(self.frameMode, bg=self.couleur, width=3, padx=5, pady=5, bd=1, relief=Tk.FLAT)
-        sep.grid(row=0, column=1)
-        f1=Tk.Frame(sep, bg="grey", relief=Tk.SUNKEN)
-        f1.grid(row=0, column=0)
-        f2=Tk.Frame(sep, bg="grey", relief=Tk.SUNKEN)
-
+        # self.FrameModeAnalyse.
         # Analyse
-        boutonAnalyse.grid(row=0, column=2)
-        self.frameAnalyse = Tk.Frame(self.frameMode, bg=self.couleur, height=self.frameManuel.winfo_height(), padx=5, pady=5, relief=Tk.SUNKEN)
-        self.frameAnalyse.grid(row=1, column=2)
-        labelDossier = Tk.Label(self.frameAnalyse, bg=self.couleur, text="Chemin vers le dossier")
+        labelDossier = Tk.Label(self.frameAnalyse, bg=self.couleurAnalyse, text="Chemin vers le dossier")
         labelDossier.grid(row=0, column=0)
         entreeDossier = Tk.Entry(self.frameAnalyse, textvariable=self.dossier, width=30)
         entreeDossier.grid(row=0, column=1)
+
+        self.FrameAffiche.pack()
+
 
         #Separateur horizontal
         separatorH = Tk.Frame( self.framePrincipal, height=2, bd=1, relief=Tk.SUNKEN)
@@ -115,24 +122,43 @@ class ParametreCapteur:
         labelResolution.grid(row=0, column=0)
         entreeResolution = Tk.Entry(self.frameRes, textvariable=self.resolution, width=30)
         entreeResolution.grid(row=0, column=1)
+        Tk.Label(self.frameRes, text="   dpi             ", bg="grey").grid(row=0, column=2)
         # Largeur
         labelLargeur = Tk.Label(self.frameRes, text="Largeur", bg=self.couleur, padx=5, pady=5)
         labelLargeur.grid(row=1, column=0)
         entreeLargeur = Tk.Entry(self.frameRes, textvariable=self.largeur, width=30)
         entreeLargeur.grid(row=1, column=1)
+        Tk.Label(self.frameRes, text="   pixels           ", bg="grey").grid(row=1, column=2)
         # Hauteur
         labelHauteur = Tk.Label(self.frameRes, text="Hauteur", bg=self.couleur, padx=5, pady=5)
         labelHauteur.grid(row=2, column=0)
         entreeHauteur = Tk.Entry(self.frameRes, textvariable=self.hauteur, width=30)
         entreeHauteur.grid(row=2, column=1)
+        Tk.Label(self.frameRes, text="   pixels           ", bg="grey").grid(row=2, column=2)
 
         #Tk.Button(self.framePrincipal, text=" Valider ", command=self.getParamCapteur()).pack()
+
+    # affiche le frameManuel
+    def miseAJourCouleurManuel(self):
+        self.frameManuel.forget()
+        self.frameAnalyse.forget()
+        self.frameManuel.pack()
+
+
+    # affiche le frameManuel
+    def miseAJourCouleurAnalyse(self):
+        self.frameAnalyse.forget()
+        self.frameManuel.forget()
+        self.frameAnalyse.pack()
 
 
     def valnumMode(self):
         """Methode a executer selon la valeur du numMode"""
-        #print(self.numMode.get())
-        pass         #Pour l'instant, ne fais rien
+        print(self.numMode.get())
+        if (self.numMode.get()== 0):
+            self.miseAJourCouleurManuel()
+        else:
+            self.miseAJourCouleurAnalyse()
 
     def getNumMode(self):
         """Renvoie le numero du mode de traitement des données: 0 pour Manuel et 1 pour Analyse"""
