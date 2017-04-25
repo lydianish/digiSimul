@@ -50,10 +50,10 @@ def ajoutSpeckelGenNorm(img, alpha, gamma):
 
 
 def ajoutSpeckelGauss(img, ecartType):
-    longeur,largeur = img.shape
+    longueur,largeur = img.shape
     #matrices de vecteurs loi normal :
-    matrixGauss =  ecartType * np.random.randn(longeur * largeur).reshape(longeur, largeur)
-    matrixGauss2 = ecartType * np.random.randn(longeur * largeur).reshape(longeur, largeur)
+    matrixGauss =  ecartType * np.random.randn(longueur * largeur).reshape(longueur, largeur)
+    matrixGauss2 = ecartType * np.random.randn(longueur * largeur).reshape(longueur, largeur)
     imgRetour = np.sqrt(img + 0j)
     imgRetour += (matrixGauss[:,:]) + (matrixGauss2[:,:]*1j)
     img = np.square(imgRetour.real) + np.square(imgRetour.imag)
@@ -65,13 +65,12 @@ def interpolation(img):
     :param img: Image à interpoler, sous forme de tableau numpy
     :return: Une fonction d'interpoaltion de l'image 
     """
-    print(img.shape)
     img = np.zeros(img.shape) + img
     l,L = img.shape
-    x = np.arange(0,l,1)
-    y = np.arange(0, L, 1)
+    x = np.arange(0,L,1)
+    y = np.arange(0, l, 1)
     X,Y = np.meshgrid(x,y)
-    fonctionInter = interpolate.interp2d(y,x,img, kind='cubic')
+    fonctionInter = interpolate.interp2d(x,y,img, kind='cubic')
     return fonctionInter
 
 def construireImageInterpelee(function,l,L,nbPoint):
@@ -83,8 +82,8 @@ def construireImageInterpelee(function,l,L,nbPoint):
     :param nbPoint: Nombre de point à interpoler 
     :return: Un tableau numpy bidimentionnel représentant une image 
     """
-    x = np.arange(0, l/nbPoint,1/nbPoint)
-    y = np.arange(0, L/nbPoint,1/nbPoint)
+    x = np.arange(0, L/nbPoint,1/nbPoint)
+    y = np.arange(0, l/nbPoint,1/nbPoint)
     img = function(x,y)
     return img
 
@@ -130,16 +129,16 @@ def AjoutBruit(image,nbPoint, method,var,alpha,gama):
         #Ajout du bruit :
         img4 = ajoutSpeckelGenNorm(img,alpha,gama)
         img5 = interpolation(img4)
-        img5 = construireImageInterpelee(img5,l,L,nbPoint)
-        return img5
+        img6 = construireImageInterpelee(img5,l,L,nbPoint)
+        return img6
     if method == "norm":
         l,L = image.shape
         img = echantillonageRect(image,nbPoint)
         #Ajout du bruit
-        img4 = ajoutSpeckelGauss(img,np.sqrt(var))
+        img4 = ajoutSpeckelGauss(img, np.sqrt(var))
         img5 = interpolation(img4)
-        img5 = construireImageInterpelee(img5,l,L,nbPoint)
-        return img5
+        img6 = construireImageInterpelee(img5,l,L,nbPoint)
+        return img6
 
 
 
@@ -165,32 +164,3 @@ def multipleImage(img):
         print(it)
         img2 = AjoutBruit(img, 2, "gen")
         it += 1
-
-
-#main
-
-# # GPU
-# # creer un contexte
-# myContext = cl.create_some_context()
-# # creer une file de commandes
-# myQueue = cl.CommandQueue(myContext)
-# # allouer et initialiser la memoire du device
-# inputData = np.random.rand(50000).astype(np.float32)
-# outputData = np.empty_like(inputData)
-# myFlags = cl.mem_flags
-# inputBuffer = cl.Buffer(myContext,
-# myFlags.READ_ONLY | myFlags.COPY_HOST_PTR, hostbuf=inputData)
-# outputBuffer = cl.Buffer(myContext, myFlags.WRITE_ONLY, inputData.nbytes)
-# # charger et compiler le kernel
-# myProgram = cl.Program(myContext,
-# """__kernel void add42(__global const float *data, __global float *result){int gid = get_global_id(0);result[gid] = data[gid] + 42.f;}""").build()
-# # ajouter le kernel dans la file de commandes
-# # recuperer les donnees dans la memoire du device
-# myProgram.add42(myQueue, inputData.shape,None, inputBuffer, outputBuffer)
-# cl.enqueue_copy(myQueue, outputData, outputBuffer)
-# # verifier le resultat du calcul
-# if abs(np.linalg.norm(outputData - (inputData + 42))) < 1e-6 :
-#     print("passed")
-# else:
-#     print("failed")
-#
