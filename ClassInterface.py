@@ -158,7 +158,6 @@ class Fenetre:
         self.bouttonProgStop.grid(row=0, column=2)
 
         #Affichage des frames
-        #self.can.pack()
         self.FrameAccueil.pack()
 
     def Commencer(self):
