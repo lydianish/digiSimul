@@ -39,7 +39,6 @@ def echantillonageRect(npimage,nbPoint):
 
 def ajoutSpeckelGenNorm(img, alpha, gamma):
     longeur,largeur = img.shape
-    print(longeur,largeur)
     #matrices de vecteurs généralisation de loi gaussienne :
     matrixGauss = stats.gennorm.rvs(gamma,scale=alpha,loc=0,size=longeur*largeur).reshape(longeur, largeur)
     matrixGauss2 =  stats.gennorm.rvs(gamma,scale=alpha,loc=0,size=longeur*largeur).reshape(longeur, largeur)

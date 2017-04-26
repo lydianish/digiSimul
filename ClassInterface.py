@@ -5,6 +5,8 @@ from tkinter.messagebox import *
 from classParamCapteur import *
 from classParamDecoupe import *
 from classParamFichier import *
+import Digisimul
+import multiprocessing
 
 class Fenetre:
 
@@ -43,7 +45,7 @@ class Fenetre:
         labelTitre = Tk.Label(self.FrameAccueil, text="BIENVENUE sur ...", font='Calibri 24', width=50, height=2, padx=5, fg="black")
         labelTitre.pack()
         # Image
-        chemin = "digiSimul.png"
+        chemin = "images/nom.bmp"
         image = Image.open(chemin)
         im = (image.copy()).resize((1000,550), Image.ANTIALIAS)
         self.photo = ImageTk.PhotoImage(im)
@@ -77,12 +79,14 @@ class Fenetre:
         #SpinBox :
         laSpinBox = Tk.Label(f, text="Nombre de coeur(s) utilisé(s)", fg="black", bg=self.couleur)
         laSpinBox.grid(row=0, column=0)
-        s = Tk.Spinbox(f, from_=1, to=10)
+        s = Tk.Spinbox(f, from_=1, to=multiprocessing.cpu_count())
         s.grid(row=0, column=1)
         labelTitre = Tk.Label(f, text="", width=10, padx=5, fg="black", bg=self.couleur)
         labelTitre.grid(row=0, column=2)
         #Boutons Lent et Rapide
+        global boutonLen
         boutonLent = Tk.Radiobutton(f, bg=self.couleur, text="Lent", variable=self.numVitesse, value=0, command=self.valnumVitesse)
+        global boutonRapide
         boutonRapide = Tk.Radiobutton(f, bg=self.couleur, text="Rapide", variable=self.numVitesse, value=1, command=self.valnumVitesse)
         boutonLent.grid(row=0, column=3)
         boutonRapide.grid(row=0, column=4)
@@ -132,18 +136,54 @@ class Fenetre:
         return self.données
 
     def Valid(self):
-        """Action à executer losrque le bouton valider est appuyer"""
+        """Action à executer losrque le bouton valider est appuyé"""
         self.bouttonValider.bind('<ButtonPress>', self.buttonValid)
 
 #    def buttonValid(self, event):
     def buttonValid(self):
-        """Action à executer losrque le bouton valider est appuyer"""
+        """Action à executer losrque le bouton valider est appuyé"""
         if askyesno('Confirmation', 'Êtes-vous sûr de vouloir valider ces données ?'):
             vc = self.frameParamCapteur.getParamCapteur()
             vd = self.frameParamDecoupe.getParamDecoupe()
             vf = self.frameParamFichier.getParamFichier()
             self.données = (vc + vd + vf)
-            showwarning('Merci', 'Vos données ont bien été prises en compte.')
+
+            alpha = float(self.données[0])
+            gama = float(self.données[1])
+            var = float(self.données[2])
+            pathAnalyse = self.données[3]
+            reso = int(self.données[4])
+            largeur = int(self.données[5])
+            hauteur = int(self.données[6])
+            minX = int(self.données[7])
+            maxX = int(self.données[8])
+            minY = int(self.données[9])
+            maxY = int(self.données[10])
+            minAngle = int(self.données[11])
+            maxAngle = int(self.données[12])
+            pathSource = self.données[13]
+            pathSave = self.données[14]
+            nbImages = int(self.données[15])
+            #TODO :
+            nbCore = 5
+            pathCapteur = "C:/Users/polch_000/Desktop/ImagesEchographiques"
+            pathBdd = "C:/Users/polch_000/Desktop/imagesBdd/"
+            pathSave = "C:/Users/polch_000/Desktop/imagesRes/"
+            resolutionOriginal = 20
+            nbPoints = 3
+            coeursLibres =  multiprocessing.cpu_count() - nbCore
+            # nbCore = self.données[16]
+            if boutonRapide == True:
+                methodeLente = False
+            else:
+                methodeLente = True
+            analyse = False
+            if self.getNumModeInt() == 1:
+                analyse = True
+
+            Digisimul.modeliserImagesMultithread(pathAnalyse, pathBdd, pathSave,nbImages, nbPoints, resolutionOriginal, reso, largeur, hauteur, minX,maxX,minY,maxY,minAngle,maxAngle, analyse,methodeLente, var, alpha , gama ,coeursLibres)
+
+            # showwarning('Merci', 'Vos données ont bien été prises en compte.')
         else:
             pass
 

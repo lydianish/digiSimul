@@ -15,7 +15,7 @@ class ParametreFichier:
         self.CheminDossierEnregistrement = Tk.StringVar()
         self.CheminDossierEnregistrement.set("")
         self.NombreImage = Tk.StringVar()
-        self.NombreImage.set("0")
+        self.NombreImage.set("50")
 
     def initialise(self):
         """Ajoute les composantes au frame ParametreFichier"""

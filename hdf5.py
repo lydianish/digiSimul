@@ -13,14 +13,14 @@ def sauv(image,nom,pathSave):
 
 
     #Création du fichier empreintedigitale
-    empdig = h5py.File(pathSave + ".h5")            # par défaut c'est , 'a' -> permet lecture et écriture s'il existe ou le créé s'il n'existe pas
+    empdig = h5py.File(pathSave + "digi.h5")            # par défaut c'est , 'a' -> permet lecture et écriture s'il existe ou le créé s'il n'existe pas
 
     if(pathSave+nom in empdig):
         print("Il existe déjà une image de ce nom dans le chemin suivant :"+pathSave+"/"+nom)
     else:
         pixels = list(image.getdata())
         empdig.create_dataset(pathSave+ nom, data=pixels, dtype='i')
-        empdig[pathSave+ nom]
+        empdig[pathSave+nom]
     # Fermeture du fichier
     empdig.close()
 

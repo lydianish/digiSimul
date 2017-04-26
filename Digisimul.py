@@ -1,5 +1,4 @@
 import AjoutBruit
-import Res_rot_dec
 import LoisPositionnement
 from scipy import stats
 import Images
@@ -12,6 +11,7 @@ import threading
 import Res_rot_dec
 import Resolution
 import hdf5
+import MyException
 
 nombreImagesGen = 0
 
@@ -27,7 +27,6 @@ def modeliserImage(pathBdd, pathSave, nomImages, nombreImages, nbPoints,resoluti
         pathIm = "%s\%s" % (pathBdd, nomImages[numeroImage])
         img = cv2.imread(pathIm,-1)
         tailleImageX,tailleImageY = img.shape
-        print(tailleImageX,tailleImageY)
     # Sous-résolution
     #     img  = Resolution.re_echantillonnage(resolutionOriginal,resolutionCapteur,img)
 
@@ -38,18 +37,21 @@ def modeliserImage(pathBdd, pathSave, nomImages, nombreImages, nbPoints,resoluti
         print("nombreImagesparImagesParCoeur %s"%nombreImagesTmp)
         it = 0
         while it <= nombreImagesTmp:
-        # Découpage et rotation de l'image
-            (x,y,theta) = LoisPositionnement.unePosition(minX,maxX,minY,maxY,minAngle,maxAngle)
-            try:
-                img = Res_rot_dec.ech_rot_dec(img, theta, x, y, largeur, longueur,tailleImageY,tailleImageX)
-            except:
-                print("t")
-        # Ajout du bruit:
+            # Découpage et rotation de l'image
+            while True:
+                try:
+                    (x,y,theta) = LoisPositionnement.unePosition(minX,maxX,minY,maxY,minAngle,maxAngle)
+                    img = Res_rot_dec.ech_rot_dec(img, theta, x, y, largeur, longueur,tailleImageY,tailleImageX)
+                except:
+                    continue
+                else:
+                    break
+            # Ajout du bruit:
             img = AjoutBruit.AjoutBruit(img, nbPoints, methode, var, alpha, gama)
-            nom = '%s%s%s' %(nomImages[numeroImage],it,nombreImagesGen)
+            nom = '%s_%s_%s.gif' %(x,y,theta)
+            Image.fromarray(img).save("C:/Users/polch_000/Desktop/imagesRes/test%s"%nom)
             hdf5.sauv(Image.fromarray(img),nom, pathSave)
             it += 1
-            # Image.fromarray(img).show()
             nombreImagesGen += 1
 
 
@@ -87,7 +89,6 @@ def modeliserImagesMultithread(pathCapteur, pathBdd, pathSave, nombreImages, nbP
      #Création et lancements des processus
     it = 0
     processus = {}
-
     reste = nombreImages % nbCore
     while it < nbCore:
         nombreImagesCore = (nombreImages // nbCore)
@@ -101,20 +102,20 @@ def modeliserImagesMultithread(pathCapteur, pathBdd, pathSave, nombreImages, nbP
 
 #main test
 
-pathCapteur =  "C:/Users\polch_000\Desktop\ImagesEchographiques"
-pathBdd = "C:/Users\polch_000\Desktop\imagesBdd"
-pathSave = "C:/Users\polch_000\Desktop\imagesRes"
-nombreImages = 5
-nbPoints = 2
-resolutionOriginal = 200
-resolutionCapteur = 100
-largeur = 100
-longueur = 100
-minX,maxX,minY,maxY,minAngle,maxAngle = 0,100,0,100,0,360
-analyse = False
-methodeLente = False
-var = 4
-alpha = 1.8
-gama = 6
-coeursLibres = 2
-modeliserImagesMultithread( pathCapteur, pathBdd, pathSave,nombreImages, nbPoints, resolutionOriginal, resolutionCapteur, largeur, longueur, minX,maxX,minY,maxY,minAngle,maxAngle, analyse,methodeLente, var, alpha , gama  ,coeursLibres)
+# pathCapteur =  "C:/Users\polch_000\Desktop\ImagesEchographiques"
+# pathBdd = "C:/Users\polch_000\Desktop\imagesBdd"
+# pathSave = "C:/Users\polch_000\Desktop\imagesRes"
+# nombreImages = 100
+# nbPoints = 2
+# resolutionOriginal = 200
+# resolutionCapteur = 100
+# largeur = 100
+# longueur = 100
+# minX,maxX,minY,maxY,minAngle,maxAngle = 0,100,0,100,0,360
+# analyse = False
+# methodeLente = False
+# var = 4
+# alpha = 1.8
+# gama = 6
+# coeursLibres = 1
+# modeliserImagesMultithread( pathCapteur, pathBdd, pathSave,nombreImages, nbPoints, resolutionOriginal, resolutionCapteur, largeur, longueur, minX,maxX,minY,maxY,minAngle,maxAngle, analyse,methodeLente, var, alpha , gama ,coeursLibres)

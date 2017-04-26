@@ -13,15 +13,15 @@ class ParametreDecoupe:
         self.minX = Tk.StringVar()
         self.minX.set("0")
         self.maxX = Tk.StringVar()
-        self.maxX.set("0")
+        self.maxX.set("100")
         self.minY = Tk.StringVar()
         self.minY.set("0")
         self.maxY = Tk.StringVar()
-        self.maxY.set("0")
+        self.maxY.set("100")
         self.minA = Tk.StringVar()
         self.minA.set("0")
         self.maxA = Tk.StringVar()
-        self.maxA.set("0")
+        self.maxA.set("100")
 
     def initialise(self):
         """Ajoute les composantes au frame ParametreDecoupe"""
