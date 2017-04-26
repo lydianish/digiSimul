@@ -4,7 +4,7 @@ from scipy.stats import norm
 
 def unePosition(minLongeur, maxLongueur, minLargeur,maxLargeur,minAngle,maxAngle):
     """
-    Donne une valeur à 95% dans l'intervalle donnée, selon une loi normal, pour les trois paramètres, x, y ,theta
+    Donne une valeur à 99% dans l'intervalle donnée, selon une loi normal, pour les trois paramètres, x, y ,theta
     
     :param minLongeur: Position en x minimal
     :param maxLongueur: Position eb x maximal

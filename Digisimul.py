@@ -49,11 +49,11 @@ def modeliserImage(pathBdd, pathSave, nomImages, nombreImages, nbPoints,resoluti
 
         #Ouverture de l'image
         pathIm = "%s\%s" % (pathBdd, nomImages[numeroImage])
-        img = cv2.imread(pathIm,-1)
-        tailleImageX,tailleImageY = img.shape
+        img = Image.open(pathIm)
+        tailleImageX,tailleImageY = img.size
     # Sous-résolution
         img  = Resolution.re_echantillonnage(resolutionOriginal,resolutionCapteur,img)
-
+        img = np.array(img)
         nombreImagesTmp = nombreImages // len(nomImages)
         if (reste > 0):
             nombreImagesTmp += 1
