@@ -169,7 +169,7 @@ class Fenetre:
             pathCapteur = "C:/Users/polch_000/Desktop/ImagesEchographiques"
             pathBdd = "C:/Users/polch_000/Desktop/imagesBdd/"
             pathSave = "C:/Users/polch_000/Desktop/imagesRes/"
-            resolutionOriginal = 20
+            resolutionOriginal = 100
             nbPoints = 3
             coeursLibres =  multiprocessing.cpu_count() - nbCore
             # nbCore = self.données[16]

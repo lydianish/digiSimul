@@ -32,7 +32,7 @@ class ParametreCapteur:
         self.dossier = Tk.StringVar()
         self.dossier.set("")
         self.resolution = Tk.StringVar()
-        self.resolution.set("0")
+        self.resolution.set("120")
         self.largeur = Tk.StringVar()
         self.largeur.set("50")
         self.hauteur = Tk.StringVar()
