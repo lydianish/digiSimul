@@ -1,7 +1,7 @@
 from PIL import Image
 
 
-#Fonctions qui vont permettrent de calculer la taille en pixels, ou en pouce ou la resolution d'une image donee
+#Fonctions qui vont permettrent de calculer la taille en pixels, ou en pouce ou la resolution d'une image donnee
 #L'utilite de ces fonctions est qu'elles vont permettrent de calculer la nouvelle taille à donner en paramètres à rezize pour le changement de resolution
 
 #------------------------------------------------------------------------
