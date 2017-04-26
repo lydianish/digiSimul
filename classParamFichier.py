@@ -16,6 +16,9 @@ class ParametreFichier:
         self.CheminDossierEnregistrement.set("")
         self.NombreImage = Tk.StringVar()
         self.NombreImage.set("0")
+        self.ResolutionOriginale = Tk.StringVar()
+        self.ResolutionOriginale.set("0")
+        self.numDebuitage = Tk.IntVar()
 
     def initialise(self):
         """Ajoute les composantes au frame ParametreFichier"""
@@ -51,6 +54,27 @@ class ParametreFichier:
         entreeNI = Tk.Entry(fpf, textvariable=self.NombreImage, width=30)
         entreeNI.grid(row=2, column=1)
 
+        #ResolutionOriginale
+        labelRO = Tk.Label(fpf, text="Resolution de l'image source", bg=self.couleur, padx=5, pady=5)
+        labelRO.grid(row=3, column=0)
+        entreeRO = Tk.Entry(fpf, textvariable=self.ResolutionOriginale, width=30)
+        entreeRO.grid(row=3, column=1)
+        labelRO2 = Tk.Label(fpf, text="     dpi", bg=self.couleur, padx=5, pady=5)
+        labelRO2.grid(row=3, column=2)
+
+        #Debruitage de l'image de base
+        #Frame
+        frameDebruitage = Tk.Frame(self.framePrincipal, bg=self.couleur, padx=5, pady=5)
+        frameDebruitage.pack()
+        labelDebruitage = Tk.Label(frameDebruitage, text="Debruitage de l'image source", width=70, bg=self.couleur, padx=5, pady=5)
+        labelDebruitage.grid(row=0, column=0)
+        boutonDebruitageOui = Tk.Radiobutton(frameDebruitage, bg=self.couleur, text="Oui", variable=self.numDebuitage, value=0, command=self.valnumDebuitage)
+        boutonDebruitageOui.deselect()
+        boutonDebruitageNon = Tk.Radiobutton(frameDebruitage, bg=self.couleur, text="Non", variable=self.numDebuitage, value=1, command=self.valnumDebuitage)
+        boutonDebruitageNon.deselect()
+        boutonDebruitageOui.grid(row=0, column=1)
+        boutonDebruitageNon.grid(row=0, column=2)
+
         def getValF():
             self.CheminImageSource = entreeIS.get()
             self.CheminDossierEnregistrement = entreeDS.get()
@@ -59,6 +83,13 @@ class ParametreFichier:
 
         # Zone pour valider les données
         #Tk.Button(self.framePrincipal, text=" Valider ", command=self.getParamFichier).pack()
+
+    def valnumDebuitage(self):
+        """Methode a executer selon la valeur du numMode"""
+        pass     #Ne fais rien pour l'instant
+        #print(self.numDebuitage.get())
+        # if (self.numDebuitage.get()== 0):
+        # else:
 
     def getFramePrincipal(self):
         """Renvoie le framePrincipal"""
@@ -70,17 +101,24 @@ class ParametreFichier:
         l = self.CheminImageSource.get()
         m = self.CheminDossierEnregistrement.get()
         n = self.NombreImage.get()
-        self.estNombre(n)
-        #print(l, m, n)
-        return (l, m, n)
+        r = self.ResolutionOriginale.get()
+        res =[n, r]
+        self.estNombre(res)
+        return (l, m, n, r)
 
     def estNombre(self,n):
-        """Affiche un message d'erreur si n n'est pas un nombre(autrement dit si le type de n n'est pas un reel)
-            n est considere comme une chaine de caracteres"""
+        """Affiche un message d'erreur si l'un des elements de n n'est pas un nombre (autrement dit si le type de l'un des elements de n n'est pas un reel)
+            n est considere comme une liste de chaines de caracteres"""
         try:
-            f1 = float(n)
+            for i in n:
+                fi = float(i)
         except:
-            showerror("Erreur de saisie du champ 'nombre d'images'", "Le champ 'nombre d'images' est incorrect, veuillez saisir un nombre")
+            showerror("Erreur de saisie dans la section decoupe ", "Erreur, veuillez saisir des nombres")
+            return
+
+    def getNumDebruitage(self):
+        """Renvoie  0 si on doit debruiter l'image, 1 sinon"""
+        return self.numDebuitage
 
     def execute(self):
         """Initiale et affiche le frame ParametreFichier"""
