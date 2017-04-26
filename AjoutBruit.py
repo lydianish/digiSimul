@@ -103,6 +103,7 @@ def anayseImageCapteur(path):
         img = cv2.imread(pathIm,0)
         #Supprime les valeurs 0 et 255
         mask = np.logical_and(img != 0,img != 255)
+        print(img)
         img = img[mask]
         #Calcul de  la variance, esperance, alpha et gama
         var = np.var(img)
@@ -140,26 +141,6 @@ def AjoutBruit(image,nbPoint, method,var,alpha,gama):
         return img6
 
 
-
-def AjoutBruitMultiThreah():
-    """
-    Produit plusieurs threads permettant d'utiliser tous les coeurs, pour l'ajout du bruit de speckel 
-    :return: Void
-    """
-    nbCore = multiprocessing.cpu_count()
-    img = cv2.imread("images/fg1.bmp")
-    img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-    it = 0
-    p = {}
-    while it < nbCore:
-        print(it)
-        p[it] = threading.Thread(target=multipleImage,args=(img,))
-        p[it].start()
-        it += 1
-
-def multipleImage(img):
-    it = 0
-    while it < 100:
-        print(it)
-        img2 = AjoutBruit(img, 2, "gen")
-        it += 1
+#Main Test
+var,alpha,gama = anayseImageCapteur("C:/Users\polch_000\Desktop/analyse/")
+print(var,alpha,gama)

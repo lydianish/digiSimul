@@ -16,6 +16,30 @@ import MyException
 nombreImagesGen = 0
 
 def modeliserImage(pathBdd, pathSave, nomImages, nombreImages, nbPoints,resolutionOriginal, resolutionCapteur, largeur, longueur, var, alpha, gama,minX,maxX,minY,maxY,minAngle,maxAngle, methode):
+    """
+    Modélise un nombre définit d'image et les enregstres 
+    
+    :param pathBdd: Chemin de la base de donnée d'images optique
+    :param pathSave: Chemin du dossier dans lequel enregistrer les résultats
+    :param nomImages: Nom du fichier de l'image optique source
+    :param nombreImages: Nombre d'image que l'on veut modéliser
+    :param nbPoints: Ratio du nombre de pixel à enlever avant interpolation  
+    :param resolutionOriginal: Résolution de l'image source
+    :param resolutionCapteur: Résolution du catpeur
+    :param largeur: Largeur du capteur en nombre de pixel 
+    :param longueur: Hauteur du capteur en nombre de pixel 
+    :param var: Paramètre de la gaussienne qui s'occupe de l'ajout du bruit
+    :param alpha: Paramètre de la loi normal généalisé qui s'occupe de l'ajout du bruit
+    :param gama: Paramètre de la loi normal généalisé qui s'occupe de l'ajout du bruit
+    :param minX: Position miminale de la fenètre de découpe en largeur
+    :param maxX: Position maximale de la fenètre de découpe en largeur
+    :param minY: Position miminale de la fenètre de découpe en hauteur
+    :param maxY: Position maximale de la fenètre de découpe en hauteur
+    :param minAngle: Angle minimale de la fenètre de découpe
+    :param maxAngle: Angle maximale de la fenètre de découpe
+    :param methode: Methode lente ou précis et lent. False pour rapide, True pour précis et lent
+    :return: Void
+    """
     global nombreImagesGen
     itImage = 0
     numeroImage = 0
@@ -28,7 +52,7 @@ def modeliserImage(pathBdd, pathSave, nomImages, nombreImages, nbPoints,resoluti
         img = cv2.imread(pathIm,-1)
         tailleImageX,tailleImageY = img.shape
     # Sous-résolution
-    #     img  = Resolution.re_echantillonnage(resolutionOriginal,resolutionCapteur,img)
+        img  = Resolution.re_echantillonnage(resolutionOriginal,resolutionCapteur,img)
 
         nombreImagesTmp = nombreImages // len(nomImages)
         if (reste > 0):
@@ -62,7 +86,32 @@ def modeliserImage(pathBdd, pathSave, nomImages, nombreImages, nbPoints,resoluti
 
 
 def modeliserImagesMultithread(pathCapteur, pathBdd, pathSave, nombreImages, nbPoints, resolutionOriginal, resolutionCapteur, largeur, longueur, minX,maxX,minY,maxY,minAngle,maxAngle, analyse = False ,methodeLente = False, var = None, alpha = None, gama = None ,coeursLibres = 1 ):
-
+    """
+    Modélise un nombre d'image données en utiliant plusieurs Threads
+    
+    :param pathBdd: Chemin de la base de donnée d'images optique
+    :param pathSave: Chemin du dossier dans lequel enregistrer les résultats
+    :param nomImages: Nom du fichier de l'image optique source
+    :param nombreImages: Nombre d'image que l'on veut modéliser
+    :param nbPoints: Ratio du nombre de pixel à enlever avant interpolation  
+    :param resolutionOriginal: Résolution de l'image source
+    :param resolutionCapteur: Résolution du catpeur
+    :param largeur: Largeur du capteur en nombre de pixel 
+    :param longueur: Hauteur du capteur en nombre de pixel 
+    :param var: Paramètre de la gaussienne qui s'occupe de l'ajout du bruit
+    :param alpha: Paramètre de la loi normal généalisé qui s'occupe de l'ajout du bruit
+    :param gama: Paramètre de la loi normal généalisé qui s'occupe de l'ajout du bruit
+    :param minX: Position miminale de la fenètre de découpe en largeur
+    :param maxX: Position maximale de la fenètre de découpe en largeur
+    :param minY: Position miminale de la fenètre de découpe en hauteur
+    :param maxY: Position maximale de la fenètre de découpe en hauteur
+    :param minAngle: Angle minimale de la fenètre de découpe
+    :param maxAngle: Angle maximale de la fenètre de découpe
+    :param analyse: False pour ne pas analyser des images du capteur à modéliser, True pour analyser
+    :param methode: Methode lente ou précis et lent. False pour rapide, True pour précis et lent
+    :param coeursLibres: nombre de coeurs qui ne seront alloués au calcule 
+    :return: void
+    """
     if analyse == True:
         # Analyse du capteur :
         var, alpha, gama = AjoutBruit.anayseImageCapteur(pathCapteur)
