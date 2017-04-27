@@ -101,7 +101,6 @@ class ParametreDecoupe:
         c2 =self.maxA.get()
         l = [a1, a2, b1, b2, c1, c2]
         self.estNombre(l)
-        #print(a1, a2, b1, b2, c1, c2)
         return (a1, a2, b1, b2, c1, c2)
 
     def estNombre(self,n):

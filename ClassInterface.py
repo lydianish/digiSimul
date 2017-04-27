@@ -82,7 +82,8 @@ class Fenetre:
         self.données = ()
         self.framebBarreDeProgression = Tk.Frame(self.framePrincipal, bg=self.couleur)
         self.barreDeProgression = ttk.Progressbar(self.framebBarreDeProgression, orient="horizontal", length=300, mode="determinate")
-        self.bouttonProgStop = Tk.Button(self.framebBarreDeProgression, text=" STOP", bg="grey", command=self.stopBarreProg, cursor="hand2")
+        self.bouttonProgStop = Tk.Button(self.framebBarreDeProgression, text=" Stop", bg="grey", command=self.stopBarreProg, cursor="hand2")
+        self.bouttonProgRelancer = Tk.Button(self.framebBarreDeProgression, text=" Relancer", bg="grey", command=self.relancerpBarreProg, cursor="hand2")
 
 
         # Pack du canevas
@@ -159,8 +160,10 @@ class Fenetre:
         self.barreDeProgression.grid(row=0, column=1)
         self.barreDeProgression.start()
         self.bouttonProgStop.grid(row=0, column=2)
+        self.bouttonProgRelancer.grid(row=0, column=3)
 
         #Affichage des frames
+        #self.can.pack()
         self.FrameAccueil.pack()
 
     def Commencer(self):
@@ -185,8 +188,17 @@ class Fenetre:
         self.frameParamValidation.pack()
 
     def stopBarreProg(self):
+        """Methode qui stoppe la barre de progression du traitement des données"""
         self.bouttonProgStop.config(state='disabled')
+        self.bouttonProgRelancer.config(state='normal')
         self.barreDeProgression.stop()
+
+    def relancerpBarreProg(self):
+        """Methode qui permet de relancer l'application à partir de l'état où on s'était arreté"""
+        self.bouttonProgRelancer.config(state='disabled')
+        self.bouttonProgStop.config(state='normal')
+        self.framebBarreDeProgression.forget()
+        self.frameParamValidation.pack()
 
     def valnumVitesse(self):
         """Methode a executer selon la valeur du numVitesse"""
@@ -194,11 +206,16 @@ class Fenetre:
 
     def getNumVitesse(self):
         """Renvoie le numero de la vitesse de traitement des données: 0 pour lent et 1 pour rapide"""
-        return self.numVitesse
+        return self.numVitesse.get()
+
 
     def getNumModeInt(self):
         """Renvoie le numero du mode de traitement des données: 0 pour Manuel et 1 pour Analyse"""
         return self.frameParamCapteur.getNumMode()
+
+    def getNumDebruitageI(self):
+        """Renvoie  0 si on doit debruiter l'image, 1 sinon"""
+        return self.frameParamFichier.getNumDebruitage()
 
 
     def getValues(self):
@@ -223,6 +240,7 @@ class Fenetre:
             pass
 
     def startTraitementDonnee(self):
+        """Methode qui affiche la barre de progression pour le traitement des données"""
         self.frameParamValidation.forget()
         separatorH = Tk.Frame(self.framePrincipal, height=2, bd=1, relief=Tk.SUNKEN)
         separatorH.pack(fill=Tk.X)

@@ -169,8 +169,6 @@ class ParametreCapteur:
         """Methode a executer selon la valeur du numMode"""
         print(self.numMode.get())
         if (self.numMode.get()== 0):
-            #labelRes = Tk.Label(self.FrameAffiche, text="En choisissant ce mode, la saisie de toutes les données est obligatoire", fg="black", bg=self.couleur)
-            #labelRes.pack()
             self.miseAJourCouleurManuel()
         else:
             self.miseAJourCouleurAnalyse()
@@ -196,7 +194,6 @@ class ParametreCapteur:
         g2 = self.nbPoints.get()
         l = [d1, d2, e1, f1, f2, g1, g2]
         self.estNombre(l)
-        #print(d1, d2, e1, e2, f1, f2, g1)
         return (d1, d2, e1, e2, f1, f2, g1, g2)
 
     def estNombre(self,n):
