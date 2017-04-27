@@ -18,7 +18,7 @@ class ParametreFichier:
         self.NombreImage.set("0")
         self.ResolutionOriginale = Tk.StringVar()
         self.ResolutionOriginale.set("0")
-        self.numDebuitage = Tk.IntVar()
+        self.numDebruitage = Tk.IntVar()
 
     def initialise(self):
         """Ajoute les composantes au frame ParametreFichier"""
@@ -68,9 +68,9 @@ class ParametreFichier:
         frameDebruitage.pack()
         labelDebruitage = Tk.Label(frameDebruitage, text="Debruitage de l'image source", width=70, bg=self.couleur, padx=5, pady=5)
         labelDebruitage.grid(row=0, column=0)
-        boutonDebruitageOui = Tk.Radiobutton(frameDebruitage, bg=self.couleur, text="Oui", variable=self.numDebuitage, value=0, command=self.valnumDebuitage)
+        boutonDebruitageOui = Tk.Radiobutton(frameDebruitage, bg=self.couleur, text="Oui", variable=self.numDebruitage, value=0, command=self.valnumDebruitage)
         boutonDebruitageOui.deselect()
-        boutonDebruitageNon = Tk.Radiobutton(frameDebruitage, bg=self.couleur, text="Non", variable=self.numDebuitage, value=1, command=self.valnumDebuitage)
+        boutonDebruitageNon = Tk.Radiobutton(frameDebruitage, bg=self.couleur, text="Non", variable=self.numDebruitage, value=1, command=self.valnumDebruitage)
         boutonDebruitageNon.deselect()
         boutonDebruitageOui.grid(row=0, column=1)
         boutonDebruitageNon.grid(row=0, column=2)
@@ -84,11 +84,12 @@ class ParametreFichier:
         # Zone pour valider les données
         #Tk.Button(self.framePrincipal, text=" Valider ", command=self.getParamFichier).pack()
 
-    def valnumDebuitage(self):
+    def valnumDebruitage(self):
         """Methode a executer selon la valeur du numMode"""
         pass     #Ne fais rien pour l'instant
-        #print(self.numDebuitage.get())
-        # if (self.numDebuitage.get()== 0):
+        #self.getNumDebruitage()
+        #print(self.numDebruitage.get())
+        # if (self.numDebruitage.get()== 0):
         # else:
 
     def getFramePrincipal(self):
@@ -104,6 +105,7 @@ class ParametreFichier:
         r = self.ResolutionOriginale.get()
         res =[n, r]
         self.estNombre(res)
+        #print(l, m, n)
         return (l, m, n, r)
 
     def estNombre(self,n):
@@ -118,7 +120,7 @@ class ParametreFichier:
 
     def getNumDebruitage(self):
         """Renvoie  0 si on doit debruiter l'image, 1 sinon"""
-        return self.numDebuitage
+        return self.numDebruitage.get()
 
     def execute(self):
         """Initiale et affiche le frame ParametreFichier"""
