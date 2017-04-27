@@ -17,9 +17,6 @@ class ParametreCapteur:
         self.FrameChoixMode = Tk.Frame(self.framePrincipal)
         self.FrameAffiche = Tk.Frame(self.framePrincipal,bg=self.couleur)
         self.frameRes = Tk.Frame(self.framePrincipal, bg=self.couleur, borderwidth=2, padx=5, pady=5)
-        #self.frameManuel = None
-        #self.frameManuel = Tk.Frame(self.frameMode, bg=self.couleurManuel, padx=5, pady=5, relief=Tk.GROOVE)
-        #self.frameAnalyse = Tk.Frame(self.frameMode, bg=self.couleurAnalyse, height=self.frameManuel.winfo_height(), padx=5, pady=5, relief=Tk.SUNKEN)
         self.frameManuel = Tk.Frame(self.FrameAffiche, bg=self.couleurManuel, padx=5, pady=5, relief=Tk.GROOVE)
         self.frameAnalyse = Tk.Frame(self.FrameAffiche, bg=self.couleurAnalyse, padx=5, pady=5, relief=Tk.SUNKEN)
         self.numMode = Tk.IntVar()
@@ -172,8 +169,6 @@ class ParametreCapteur:
         """Methode a executer selon la valeur du numMode"""
         print(self.numMode.get())
         if (self.numMode.get()== 0):
-            #labelRes = Tk.Label(self.FrameAffiche, text="En choisissant ce mode, la saisie de toutes les données est obligatoire", fg="black", bg=self.couleur)
-            #labelRes.pack()
             self.miseAJourCouleurManuel()
         else:
             self.miseAJourCouleurAnalyse()
@@ -199,7 +194,6 @@ class ParametreCapteur:
         g2 = self.nbPoints.get()
         l = [d1, d2, e1, f1, f2, g1, g2]
         self.estNombre(l)
-        #print(d1, d2, e1, e2, f1, f2, g1)
         return (d1, d2, e1, e2, f1, f2, g1, g2)
 
     def estNombre(self,n):
