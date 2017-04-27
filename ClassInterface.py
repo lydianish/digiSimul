@@ -247,7 +247,8 @@ class Fenetre:
         resolutionOriginal = int(self.données[17])
         nbCore = 4 #TODO
         coeursLibres = multiprocessing.cpu_count() - nbCore
-
+        print("numVitesse")
+        print(self.getNumVitesse())
         methodeLente = True
         if self.getNumVitesse() == 0:
             methodeLente = True
