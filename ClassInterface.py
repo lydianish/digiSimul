@@ -203,11 +203,16 @@ class Fenetre:
 
     def getNumVitesse(self):
         """Renvoie le numero de la vitesse de traitement des données: 0 pour lent et 1 pour rapide"""
-        return self.numVitesse
+        return self.numVitesse.get()
+
 
     def getNumModeInt(self):
         """Renvoie le numero du mode de traitement des données: 0 pour Manuel et 1 pour Analyse"""
         return self.frameParamCapteur.getNumMode()
+
+    def getNumDebruitageI(self):
+        """Renvoie  0 si on doit debruiter l'image, 1 sinon"""
+        return self.frameParamFichier.getNumDebruitage()
 
 
     def getValues(self):
@@ -226,6 +231,7 @@ class Fenetre:
             vd = self.frameParamDecoupe.getParamDecoupe()
             vf = self.frameParamFichier.getParamFichier()
             self.données = (vc + vd + vf)
+            # showinfo('Merci', 'Vos données ont bien été prises en compte.')
             self.startTraitementDonnee()
         else:
             pass
