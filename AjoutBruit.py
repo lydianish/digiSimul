@@ -103,7 +103,6 @@ def anayseImageCapteur(path):
         img = cv2.imread(pathIm,0)
         #Supprime les valeurs 0 et 255
         mask = np.logical_and(img != 0,img != 255)
-        print(img)
         img = img[mask]
         #Calcul de  la variance, esperance, alpha et gama
         var = np.var(img)
@@ -124,6 +123,7 @@ def AjoutBruit(image,nbPoint, method,var,alpha,gama):
     :return: Un tableau bidimentionel numpy représentant une image 
     """
     if method == "gen":
+        print("mode lent")
         l,L = image.shape
         img = echantillonageRect(image,nbPoint)
         #Ajout du bruit :
@@ -132,6 +132,7 @@ def AjoutBruit(image,nbPoint, method,var,alpha,gama):
         img6 = construireImageInterpelee(img5,l,L,nbPoint)
         return img6
     if method == "norm":
+        print("mode rapide")
         l,L = image.shape
         img = echantillonageRect(image,nbPoint)
         #Ajout du bruit

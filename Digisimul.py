@@ -1,17 +1,14 @@
 import AjoutBruit
 import LoisPositionnement
 from scipy import stats
-import Images
 import os
 import numpy as np
-import cv2
 from PIL import Image
 import multiprocessing
 import threading
 import Res_rot_dec
 import Resolution
 import hdf5
-import MyException
 
 nombreImagesGen = 0
 
@@ -43,23 +40,25 @@ def modeliserImage(pathBdd, pathSave, nomImages, nombreImages, nbPoints,resoluti
     global nombreImagesGen
     itImage = 0
     numeroImage = 0
+    nombreImageDansCeCoeur = 0
     reste = nombreImages % len(nomImages)
-    # pour chaque image
+# pour chaque image de bdd
     while itImage < len(nomImages):
-
-        #Ouverture de l'image
+    #Ouverture de l'image
         pathIm = "%s\%s" % (pathBdd, nomImages[numeroImage])
         img = Image.open(pathIm)
         tailleImageX,tailleImageY = img.size
     # Sous-résolution
-        img  = Resolution.re_echantillonnage(resolutionOriginal,resolutionCapteur,img)
+        img = Resolution.re_echantillonnage(resolutionOriginal,resolutionCapteur,img)
         img = np.array(img)
+    # Nombre d'imagette à produire pour l'image actuelle
         nombreImagesTmp = nombreImages // len(nomImages)
         if (reste > 0):
             nombreImagesTmp += 1
             reste -= 1
-        print("nombreImagesparImagesParCoeur %s"%nombreImagesTmp)
+        # print("nombreImagesparImagesParCoeur %s"%nombreImagesTmp)
         it = 0
+    #Boucle
         while it <= nombreImagesTmp:
             # Découpage et rotation de l'image
             while True:
@@ -70,19 +69,24 @@ def modeliserImage(pathBdd, pathSave, nomImages, nombreImages, nbPoints,resoluti
                     continue
                 else:
                     break
-            # Ajout du bruit:
+                    # Ajout du bruit:
             img = AjoutBruit.AjoutBruit(img, nbPoints, methode, var, alpha, gama)
-            nom = '%s_%s_%s.gif' %(x,y,theta)
-            Image.fromarray(img).save("C:/Users/polch_000/Desktop/imagesRes/test%s"%nom)
-            hdf5.sauv(Image.fromarray(img),nom, pathSave)
+            #Nomage
+            nom2 = '%s_%s_%s.gif' %(x,y,theta)
+            nom1,nomd = nomImages[numeroImage].split(".")
+
+
+
+            Image.fromarray(img).save("C:/Users/polch_000/Desktop/imagesRes/%s-%s"%(nom1,nom2))
+            # Sauvegarde
+            hdf5.sauv(Image.fromarray(img),nom1+"-"+nom2, pathSave)
             it += 1
+            nombreImageDansCeCoeur += 1
             nombreImagesGen += 1
-
-
-
-        print(nombreImagesGen)
+            print(nombreImagesGen)
+            if nombreImageDansCeCoeur > nombreImages:
+                return
         itImage += 1
-    return img
 
 
 def modeliserImagesMultithread(pathCapteur, pathBdd, pathSave, nombreImages, nbPoints, resolutionOriginal, resolutionCapteur, largeur, longueur, minX,maxX,minY,maxY,minAngle,maxAngle, analyse = False ,methodeLente = False, var = None, alpha = None, gama = None ,coeursLibres = 1 ):
@@ -122,7 +126,9 @@ def modeliserImagesMultithread(pathCapteur, pathBdd, pathSave, nombreImages, nbP
             drfAlpha = stats.gaussian_kde(alpha)
             drfGama = stats.gaussian_kde(gama)
 
-
+    methode = "norm"
+    if methodeLente == False:
+        methode = "gen"
 
     listeImage = os.listdir(pathBdd)
     nbCore = multiprocessing.cpu_count() - coeursLibres
@@ -131,6 +137,7 @@ def modeliserImagesMultithread(pathCapteur, pathBdd, pathSave, nombreImages, nbP
     index = -1
     #Repartition des images par coeur
     print('nbCore: %s'%(nbCore))
+
     while index < len(listeImage)-1:
         index += 1
         listeImageCut[index % nbCore].append(listeImage[index])
@@ -145,26 +152,27 @@ def modeliserImagesMultithread(pathCapteur, pathBdd, pathSave, nombreImages, nbP
             nombreImagesCore += 1
             reste -= 1
         print("nbImgCore %s"%nombreImagesCore)
-        processus[it]= threading.Thread(target=modeliserImage, args=(pathBdd, pathSave,listeImageCut[it], nombreImagesCore, nbPoints,resolutionOriginal, resolutionCapteur, largeur, longueur, var, alpha, gama,minX,maxX,minY,maxY,minAngle,maxAngle,"norm"))
-        processus[it].start()
+        if nombreImagesCore != 0:
+            processus[it]= threading.Thread(target=modeliserImage, args=(pathBdd, pathSave,listeImageCut[it], nombreImagesCore, nbPoints,resolutionOriginal, resolutionCapteur, largeur, longueur, var, alpha, gama,minX,maxX,minY,maxY,minAngle,maxAngle,methode))
+            processus[it].start()
         it += 1
 
-#main test
+            #main test
 
-# pathCapteur =  "C:/Users\polch_000\Desktop\ImagesEchographiques"
-# pathBdd = "C:/Users\polch_000\Desktop\imagesBdd"
-# pathSave = "C:/Users\polch_000\Desktop\imagesRes"
-# nombreImages = 100
-# nbPoints = 2
-# resolutionOriginal = 200
-# resolutionCapteur = 100
-# largeur = 100
-# longueur = 100
-# minX,maxX,minY,maxY,minAngle,maxAngle = 0,100,0,100,0,360
-# analyse = False
-# methodeLente = False
-# var = 4
-# alpha = 1.8
-# gama = 6
-# coeursLibres = 1
-# modeliserImagesMultithread( pathCapteur, pathBdd, pathSave,nombreImages, nbPoints, resolutionOriginal, resolutionCapteur, largeur, longueur, minX,maxX,minY,maxY,minAngle,maxAngle, analyse,methodeLente, var, alpha , gama ,coeursLibres)
+            # pathCapteur =  "C:/Users\polch_000\Desktop\ImagesEchographiques"
+            # pathBdd = "C:/Users\polch_000\Desktop\imagesBdd"
+            # pathSave = "C:/Users\polch_000\Desktop\imagesRes"
+            # nombreImages = 100
+            # nbPoints = 2
+            # resolutionOriginal = 200
+            # resolutionCapteur = 100
+            # largeur = 100
+            # longueur = 100
+            # minX,maxX,minY,maxY,minAngle,maxAngle = 0,100,0,100,0,360
+            # analyse = False
+            # methodeLente = False
+            # var = 4
+            # alpha = 1.8
+            # gama = 6
+            # coeursLibres = 1
+            # modeliserImagesMultithread( pathCapteur, pathBdd, pathSave,nombreImages, nbPoints, resolutionOriginal, resolutionCapteur, largeur, longueur, minX,maxX,minY,maxY,minAngle,maxAngle, analyse,methodeLente, var, alpha , gama ,coeursLibres)

@@ -28,7 +28,6 @@ def test(tab,x, y, taille_capteur_long, taille_capteur_hauteur, l, h):
 
 
 def test007(tab, x, y, taille_capteur_long, taille_capteur_hauteur):
-    print(x,y)
     """
     Teste si la partie à découper ne contient que du noir (il faut au moins 10 pixels de
      couleur pour que l'image soit affichée)

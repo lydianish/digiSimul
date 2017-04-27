@@ -3,7 +3,6 @@ from PIL.Image import *
 
 
 def sauv(image,nom,pathSave):
-    print(pathSave)
     """
     Enregistre l'image passee en parametre sous format hdf5 à l'adresse donnee par l'utilisateur ou dans un fichier
     prédéfinie, pour une génération random d'images.

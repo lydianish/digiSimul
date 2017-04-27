@@ -22,7 +22,6 @@ def decoupe(tab, x, y, taille_capteur_long, taille_capteur_hauteur,tl,th):
         coupe= tab[y:y+taille_capteur_hauteur,x:x+taille_capteur_long]
         return(coupe)
     except Exception as e:
-        print(e)
         exit()
 
 

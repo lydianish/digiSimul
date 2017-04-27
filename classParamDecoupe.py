@@ -11,17 +11,17 @@ class ParametreDecoupe:
         self.couleur = "grey"
         self.framePrincipal = Tk.Frame(parent, bg=self.couleur)
         self.minX = Tk.StringVar()
-        self.minX.set("0")
+        self.minX.set("50")
         self.maxX = Tk.StringVar()
-        self.maxX.set("100")
+        self.maxX.set("200")
         self.minY = Tk.StringVar()
-        self.minY.set("0")
+        self.minY.set("50")
         self.maxY = Tk.StringVar()
-        self.maxY.set("100")
+        self.maxY.set("200")
         self.minA = Tk.StringVar()
-        self.minA.set("0")
+        self.minA.set("20")
         self.maxA = Tk.StringVar()
-        self.maxA.set("100")
+        self.maxA.set("60")
 
     def initialise(self):
         """Ajoute les composantes au frame ParametreDecoupe"""

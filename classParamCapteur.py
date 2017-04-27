@@ -17,18 +17,15 @@ class ParametreCapteur:
         self.FrameChoixMode = Tk.Frame(self.framePrincipal)
         self.FrameAffiche = Tk.Frame(self.framePrincipal,bg=self.couleur)
         self.frameRes = Tk.Frame(self.framePrincipal, bg=self.couleur, borderwidth=2, padx=5, pady=5)
-        #self.frameManuel = None
-        #self.frameManuel = Tk.Frame(self.frameMode, bg=self.couleurManuel, padx=5, pady=5, relief=Tk.GROOVE)
-        #self.frameAnalyse = Tk.Frame(self.frameMode, bg=self.couleurAnalyse, height=self.frameManuel.winfo_height(), padx=5, pady=5, relief=Tk.SUNKEN)
         self.frameManuel = Tk.Frame(self.FrameAffiche, bg=self.couleurManuel, padx=5, pady=5, relief=Tk.GROOVE)
         self.frameAnalyse = Tk.Frame(self.FrameAffiche, bg=self.couleurAnalyse, padx=5, pady=5, relief=Tk.SUNKEN)
         self.numMode = Tk.IntVar()
         self.alpha = Tk.StringVar()
         self.alpha.set("1.8")
         self.gama = Tk.StringVar()
-        self.gama.set("10")
+        self.gama.set("9")
         self.var = Tk.StringVar()
-        self.var.set("3")
+        self.var.set("2")
         self.dossier = Tk.StringVar()
         self.dossier.set("")
         self.resolution = Tk.StringVar()
@@ -37,6 +34,8 @@ class ParametreCapteur:
         self.largeur.set("50")
         self.hauteur = Tk.StringVar()
         self.hauteur.set("100")
+        self.nbPoints = Tk.StringVar()
+        self.nbPoints.set("3")
 
     def initialise(self):
         """Ajoute les composantes au frame ParametreCapteur"""
@@ -144,6 +143,11 @@ class ParametreCapteur:
         entreeHauteur = Tk.Entry(self.frameRes, textvariable=self.hauteur, width=30)
         entreeHauteur.grid(row=2, column=1)
         Tk.Label(self.frameRes, text="   pixels           ", bg="grey").grid(row=2, column=2)
+        # Nombre de points
+        labelnbPoints = Tk.Label(self.frameRes, text="Nombre de point(s)", bg=self.couleur, padx=5, pady=5)
+        labelnbPoints.grid(row=3, column=0)
+        entreenbPoints = Tk.Entry(self.frameRes, textvariable=self.nbPoints, width=30)
+        entreenbPoints.grid(row=3, column=1)
 
         #Tk.Button(self.framePrincipal, text=" Valider ", command=self.getParamCapteur()).pack()
 
@@ -189,10 +193,11 @@ class ParametreCapteur:
         f1 = self.resolution.get()
         f2 =self.largeur.get()
         g1 = self.hauteur.get()
-        l = [d1, d2, e1, f1, f2, g1]
+        g2 = self.nbPoints.get()
+        l = [d1, d2, e1, f1, f2, g1, g2]
         self.estNombre(l)
         #print(d1, d2, e1, e2, f1, f2, g1)
-        return (d1, d2, e1, e2, f1, f2, g1)
+        return (d1, d2, e1, e2, f1, f2, g1, g2)
 
     def estNombre(self,n):
         """Affiche un message d'erreur si l'un des elements de n n'est pas un nombre (autrement dit si le type de l'un des elements de n n'est pas un reel)
