@@ -77,7 +77,7 @@ def modeliserImage(pathBdd, pathSave, nomImages, nombreImages, nbPoints,resoluti
 
 
 
-            # Image.fromarray(img).save("C:/Users/polch_000/Desktop/imagesRes/%s-%s"%(nom1,nom2))
+            Image.fromarray(img).save("C:/Users/polch_000/Desktop/imagesRes/%s-%s"%(nom1,nom2))
             # Sauvegarde
             hdf5.sauv(Image.fromarray(img),nom1+"-"+nom2, pathSave)
             it += 1
