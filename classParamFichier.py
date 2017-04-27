@@ -105,7 +105,6 @@ class ParametreFichier:
         r = self.ResolutionOriginale.get()
         res =[n, r]
         self.estNombre(res)
-        #print(l, m, n)
         return (l, m, n, r)
 
     def estNombre(self,n):
